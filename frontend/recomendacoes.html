@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,122 +14,284 @@
   <link href="https://cdn.jsdelivr.net/npm/flag-icons@7.0.0/css/flag-icons.min.css" rel="stylesheet">
 
 </head>
+
+<style>
+  .card-ranking {
+    border-radius: 1rem;
+    transition: transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-ranking:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-ranking::before {
+    content: attr(data-rank);
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: gold;
+    color: #000;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    border-radius: 50%;
+    z-index: 1;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  }
+
+  .rank-1::before {
+    content: '🥇';
+    background-color: #ffd700;
+  }
+
+  .rank-2::before {
+    content: '🥈';
+    background-color: #c0c0c0;
+  }
+
+  .rank-3::before {
+    content: '🥉';
+    background-color: #cd7f32;
+  }
+</style>
+
+
 <body class="bg-light">
+
+  <header class="bg-white border-bottom shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center py-2">
+
+      <!-- Logo -->
+      <a href="recomendacoes.html" class="d-flex align-items-center text-decoration-none">
+        <img src="logo.jpg" alt="Logo Move Wise" height="40"
+          style="border-radius: 10px; border: 1.5px solid #ccc; box-shadow: 0.1px;">
+        <span class="ms-2 fw-bold text-dark"></span>
+      </a>
+
+      <!-- Ícone de Perfil -->
+      <a href="perfil.html" title="Meu Perfil" class="text-secondary fs-1">
+        <i class="bi bi-person-circle"></i>
+      </a>
+
+    </div>
+  </header>
+
 
   <div class="container py-5">
     <h2 class="text-center mb-4">Resumo das Recomendações</h2>
 
     <div class="row g-4 justify-content-center" id="resumo-recomendacoes">
 
-      <!-- Card 1 -->
+      <!-- Card 1 - 1º lugar -->
       <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-        <div class="card h-100 shadow-sm">
+        <div class="card h-100 shadow-sm card-ranking rank-1">
           <div class="card-body">
             <h5 class="card-title"><span class="fi fi-de"></span> Alemanha</h5>
             <p class="mb-1"><strong>Profissão:</strong> Desenvolvedor</p>
-            <p class="mb-1"><strong>Salário Médio:</strong> €4.200</p>
-            <p class="mb-0"><strong>Custo de Vida:</strong> €2.300</p>
+            <p class="mb-1"><strong>Salário Médio:</strong> R$4.200</p>
+            <p class="mb-0"><strong>Custo de Vida:</strong> R$2.300</p>
           </div>
         </div>
       </div>
 
-      <!-- Card 2 -->
+      <!-- Card 2 - 2º lugar -->
       <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-        <div class="card h-100 shadow-sm">
+        <div class="card h-100 shadow-sm card-ranking rank-2">
           <div class="card-body">
             <h5 class="card-title"><span class="fi fi-ca"></span> Canadá</h5>
             <p class="mb-1"><strong>Profissão:</strong> Desenvolvedor</p>
-            <p class="mb-1"><strong>Salário Médio:</strong> CA$6.000</p>
-            <p class="mb-0"><strong>Custo de Vida:</strong> CA$3.200</p>
+            <p class="mb-1"><strong>Salário Médio:</strong> R$6.000</p>
+            <p class="mb-0"><strong>Custo de Vida:</strong> R$3.200</p>
           </div>
         </div>
       </div>
 
-      <!-- Card 3 -->
+      <!-- Card 3 - 3º lugar -->
       <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-        <div class="card h-100 shadow-sm">
+        <div class="card h-100 shadow-sm card-ranking rank-3">
           <div class="card-body">
             <h5 class="card-title"><span class="fi fi-pt"></span> Portugal</h5>
             <p class="mb-1"><strong>Profissão:</strong> Desenvolvedor</p>
-            <p class="mb-1"><strong>Salário Médio:</strong> €2.000</p>
-            <p class="mb-0"><strong>Custo de Vida:</strong> €1.300</p>
+            <p class="mb-1"><strong>Salário Médio:</strong> R$2.000</p>
+            <p class="mb-0"><strong>Custo de Vida:</strong> R$1.300</p>
           </div>
         </div>
       </div>
+
 
     </div>
 
     <hr class="m-5">
 
     <div class="card shadow-lg mb-5">
-        <div class="row g-1">
-            <div class="col-md-5">
-                <div id="carouselAlemanha" class="carousel slide h-100" data-bs-ride="carousel">
-                <div class="carousel-inner h-100 rounded-start" style="height: 300px;">
-                    <div class="carousel-item active h-100">
-                    <img src="alemanha.jpg" 
-                        class="d-block w-100 h-100 object-fit-cover" alt="Berlim" height="300px">
-                    </div>
-                    <div class="carousel-item h-100">
-                    <img src="alemanha2.jpg" 
-                        class="d-block w-100 h-100 object-fit-cover" alt="Munique" height="300px">
-                    </div>
-                    <div class="carousel-item h-100">
-                    <img src="alemanha3.jpg" 
-                        class="d-block w-100 h-100 object-fit-cover" alt="Hamburgo" height="300px">
-                    </div>
-                </div>
-            
-                <!-- Controles -->
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselAlemanha" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Anterior</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselAlemanha" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Próximo</span>
-                </button>
-                </div>
-            </div>
-  
-      
-          <!-- Conteúdo -->
-          <div class="col-md-7">
-            <div class="card-body">
-              <h4 class="card-title mb-3">
-                <span class="fi fi-de me-2"></span> Alemanha
-              </h4>
-      
-              <p class="card-text">
-                A Alemanha é um dos países mais desenvolvidos da Europa, com uma economia forte, excelente qualidade de vida
-                e oportunidades para profissionais de tecnologia. Berlim, Munique e Hamburgo são grandes centros de inovação e startups.
-              </p>
-      
-              <div class="row mb-3">
-                <div class="col-6">
-                  <p class="mb-1"><strong>Capital:</strong> Berlim</p>
-                  <p class="mb-1"><strong>População:</strong> 83 milhões</p>
-                  <p class="mb-1"><strong>Moeda:</strong> Euro (€)</p>
-                </div>
-                <div class="col-6">
-                  <p class="mb-1"><strong>Salário médio (Desenvolvedor):</strong> €4.200</p>
-                  <p class="mb-1"><strong>Custo de vida médio:</strong> €2.300</p>
-                  <p class="mb-1"><strong>Expectativa líquida:</strong> €1.900</p>
-                </div>
+      <div class="row g-1">
+        <div class="col-md-5">
+          <div id="carouselAlemanha" class="carousel slide h-100" data-bs-ride="carousel">
+            <div class="carousel-inner h-100 rounded-start" style="height: 300px;">
+              <div class="carousel-item active h-100">
+                <img src="alemanha.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Berlim" height="300px">
               </div>
-      
-              <a href="https://www.linkedin.com/jobs/search/?keywords=developer&location=Germany" target="_blank" class="btn btn-primary">
-                Ver vagas na Alemanha
-              </a>
+              <div class="carousel-item h-100">
+                <img src="alemanha2.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Munique" height="300px">
+              </div>
+              <div class="carousel-item h-100">
+                <img src="alemanha3.jpg" class="d-block w-100 h-100 object-fit-cover" alt="Hamburgo" height="300px">
+              </div>
             </div>
+
+            <!-- Controles -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselAlemanha" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselAlemanha" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Próximo</span>
+            </button>
           </div>
         </div>
+
+
+        <!-- Conteúdo -->
+        <div class="col-md-7">
+          <div class="card-body">
+            <h4 class="card-title mb-3">
+              <span class="fi fi-de me-2"></span> Alemanha
+            </h4>
+
+            <p class="card-text">
+              A Alemanha é um dos países mais desenvolvidos da Europa, com uma economia forte, excelente qualidade de
+              vida
+              e oportunidades para profissionais de tecnologia. Berlim, Munique e Hamburgo são grandes centros de
+              inovação e startups.
+            </p>
+
+            <div class="row text-center g-3 my-4">
+              <div class="col-md-4">
+                <div class="card border-success shadow-sm">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                      Salário Médio
+                      <a href="https://www.payscale.com/" target="_blank" title="Fonte: Payscale">
+                        <i class="bi bi-info-circle text-primary ms-1"></i>
+                      </a>
+                    </h6>
+                    <h5 class="card-title text-success">R$4.200</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card border-danger shadow-sm">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">
+                      Custo de Vida
+                      <a href="https://www.numbeo.com/cost-of-living/" target="_blank" title="Fonte: Numbeo">
+                        <i class="bi bi-info-circle text-primary ms-1"></i>
+                      </a>
+                    </h6>
+                    <h5 class="card-title text-danger">R$2.300</h5>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card border-primary shadow-sm">
+                  <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Expectativa Líquida</h6>
+                    <h5 class="card-title text-primary">R$1.900</h5>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row text-center g-3 mb-4">
+              <div class="col-md-4">
+                <div class="card bg-light border-0 shadow-sm">
+                  <div class="card-body">
+                    <i class="bi bi-geo-alt-fill fs-3 text-danger mb-2"></i>
+                    <p class="mb-1 fw-bold">Capital</p>
+                    <p class="mb-0">Berlim</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card bg-light border-0 shadow-sm">
+                  <div class="card-body">
+                    <i class="bi bi-people-fill fs-3 text-success mb-2"></i>
+                    <p class="mb-1 fw-bold">População</p>
+                    <p class="mb-0">83 milhões</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card bg-light border-0 shadow-sm">
+                  <div class="card-body">
+                    <i class="bi bi-currency-euro fs-3 text-primary mb-2"></i>
+                    <p class="mb-1 fw-bold">Moeda</p>
+                    <p class="mb-0">Euro (€)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row text-center g-3 mb-4">
+              <div class="col-md-4">
+                <div class="card bg-light border-0 shadow-sm">
+                  <div class="card-body">
+                    <i class="bi bi-translate fs-3 text-danger mb-2"></i>
+                    <p class="mb-1 fw-bold">Idiomas</p>
+                    <p class="mb-0">Alemão</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card bg-light border-0 shadow-sm">
+                  <div class="card-body">
+                    <i class="bi bi-cloud-snow fs-3 text-info mb-2"></i>
+                    <p class="mb-1 fw-bold">Clima</p>
+                    <p class="mb-0">Frio</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card bg-light border-0 shadow-sm">
+                  <div class="card-body">
+                    <i class="bi bi-globe-europe-africa fs-3 text-primary mb-2"></i>
+                    <p class="mb-1 fw-bold">Região</p>
+                    <p class="mb-0">Europa Central</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <a href="https://www.linkedin.com/jobs/search/?keywords=developer&location=Germany" target="_blank"
+              class="btn btn-primary mt-3">
+              Ver vagas na Alemanha
+            </a>
+
+          </div>
+        </div>
+
       </div>
-      
+
+    </div>
+
+
 
   </div>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
+
+<script>
+  if (!localStorage.getItem('user-info')) return window.location.href = "login.html";
+
+
+</script>

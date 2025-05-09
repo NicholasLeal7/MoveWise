@@ -3,6 +3,8 @@ import { User } from "../types/user";
 export const user: User = {
     id: 1,
     name: 'João da Silva',
+    username: 'joao77',
+    password: 'asjhsahjdhuaweuiy3',
     profession: 'Software_Developer',
     costOfLiving: 3000,
     favoriteContinent: [

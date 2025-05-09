@@ -4,6 +4,8 @@ import { Language } from "./language";
 export type User = {
     id: number,
     name: string,
+    username: string,
+    password: string,
     salary: number,
     salaryExpect: number,
     costOfLiving: number,

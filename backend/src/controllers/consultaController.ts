@@ -1,14 +1,17 @@
-import { RequestHandler } from "express"
+import { RequestHandler } from "express";
 import axios from 'axios';
-import { user } from "../data/user";
 import * as cheerio from 'cheerio';
 import { Language } from "../types/language";
 import { Country } from "../types/country";
-import { getPaisesByContinent } from "../services/Pais";
+import { getPaisesByContinent, getAllInfo } from "../services/Pais";
 import { Continent } from "../types/continent";
+import z from 'zod';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const formatarGemini = async (prompt: string) => {
-    const apiKey = 'AIzaSyBOLTOgc_q5z4kwEdd08t5SthxL6SitFlI';
+    const apiKey = process.env.GOOGLEAPIKEY;
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const body = {
@@ -121,8 +124,22 @@ const extrairMediaSalarial = async (countryAcronym: string, profession: string) 
     }
 };
 
-export const getPaises: RequestHandler = async (req, res) => {
+export const getConsulta: RequestHandler = async (req, res, next) => {
+    //validação dos dados recebidos
+    const userSchema = z.object({
+        profession: z.string().max(100),
+        costOfLiving: z.number(),
+        favoriteContinent: z.array(z.string()),
+        languages: z.array(z.string()),
+        originCountry: z.string().max(50),
+        salary: z.number(),
+        salaryExpect: z.number()
+    });
+    const body = userSchema.safeParse(req.body);
+    if (!body.success) return next({ status: 400, message: 'Dados inválidos!' })
+
     //variaveis
+    const user = body.data;
     let countries: Country[] = [];
     const paises: any = [];
 
@@ -141,7 +158,8 @@ export const getPaises: RequestHandler = async (req, res) => {
                 languages: pais.languages,
                 salaryByChosenProfession: 0,
                 countryDisposableIncome: 0,
-                countryCostOfLiving: 0
+                countryCostOfLiving: 0,
+                eligible: false
             });
         });
     }
@@ -158,29 +176,40 @@ export const getPaises: RequestHandler = async (req, res) => {
         return false;
     });
 
-    //filtrar salario
+    //filtrar salario            
     for (let i = 0; i < countries.length; i++) {
         const salarioPais = await extrairMediaSalarial(countries[i].cca2, user.profession);
 
         if (salarioPais?.mediaDeCarreira) {
             countries[i].salaryByChosenProfession = parseFloat(salarioPais?.mediaDeCarreira);
-            (parseFloat(salarioPais.mediaDeCarreira) / 12) >= user.salaryExpect || countries.splice(i, 1);
+            if ((parseFloat(salarioPais.mediaDeCarreira) / 12) >= user.salaryExpect) {
+                //a expectativa salarial do pais em análise é superir a expectativa do usuário
+                //então este país é elegível
+                countries[i].eligible = true;
+            }
         }
     }
 
-    //filtrar custo de vida    
+    //filtrar custo de vida            
     const currentDisposableIncome = user.salary - user.costOfLiving;
     for (let i = 0; i < countries.length; i++) {
+        if (!countries[i].eligible) continue; //ignora paises não elegíveis
+
         //otimizar com extração de dados via mongoDB
         const custoDeVidaPais = await extrairResumoCustoDeVida(countries[i].nameEnUs);
         const countryDisposableIncome = (countries[i].salaryByChosenProfession / 12) - custoDeVidaPais;
         countries[i].countryCostOfLiving = custoDeVidaPais;
         countries[i].countryDisposableIncome = countryDisposableIncome;
 
-        countryDisposableIncome >= currentDisposableIncome || countries.splice(i, 1);
+        if (currentDisposableIncome > countryDisposableIncome) {
+            //se o que sobra do país atual é maior que o país sendo comparado, 
+            // então ele não é mais elegível           
+            countries[i].eligible = false;
+        }
     }
 
     //eleger 3 dos países restantes
+    countries = countries.filter((pais: any) => pais.eligible);
     countries = countries
         .sort((a, b) => b.countryDisposableIncome - a.countryDisposableIncome) // decrescente
         .slice(0, 3) // pega os 3 maiores        
@@ -216,9 +245,63 @@ export const getPaises: RequestHandler = async (req, res) => {
             countries
         })
     } else {
-        res.status(200).json({
-            error: true,
-            message: 'Nenhum país foi selecionado.'
-        })
+        //enviando erro para o errorHandler
+        next({
+            status: 200,
+            message: 'Nenhum país foi encontrado para esta busca.'
+        });
     }
+};
+
+export const getInfo: RequestHandler = async (req, res, next) => {
+    const info = await getAllInfo();
+
+    if (!info) return next({ status: 500, message: 'Ocorreu um erro ao buscar os dados.' });
+
+    //inicializar variaveis
+    let professions: string = '';
+    let countries: string = '';
+    let subregions: string = '';
+    let languages: string = '';
+
+    //gerar html de profissões
+    for (let i = 0; i < info.professions.length; i++) {
+        professions += `            
+            <option value="${info.professions[i].url_profissao}">${info.professions[i].nome_profissao}</option>
+        `;
+    }
+
+    //gerar html de paises
+    for (let i = 0; i < info.countries.length; i++) {
+        countries += `            
+            <option value="${info.countries[i].name_en_us}">${info.countries[i].name_pt_br}</option>
+        `;
+    }
+
+
+    //gerar html de subregiao
+    for (let i = 0; i < info.subregions.length; i++) {
+        subregions += `            
+            <option value="${info.subregions[i].nome}">${info.subregions[i].nome_ptbr}</option>
+        `;
+    }
+
+
+    //gerar html de profissões
+    for (let i = 0; i < info.languages.length; i++) {
+        languages += `            
+            <option value="${info.languages[i].nome}">${info.languages[i].nome_ptbr}</option>
+        `;
+    }
+
+    const html = {
+        professions,
+        countries,
+        subregions,
+        languages
+    }
+
+    res.status(200).json({
+        html
+    });
 };

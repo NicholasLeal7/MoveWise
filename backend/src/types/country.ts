@@ -12,5 +12,6 @@ export type Country = {
     population: number,
     salaryByChosenProfession: number,
     countryDisposableIncome: number,
-    countryCostOfLiving: number
+    countryCostOfLiving: number,
+    eligible: boolean
 }
