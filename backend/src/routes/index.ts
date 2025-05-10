@@ -11,10 +11,12 @@ router.post('/login', authController.login);
 router.post('/register', authController.register);
 
 //realizar consulta
-router.get('/consulta', privateRoute, consultaController.getConsulta);
+router.get('/consulta/:username', privateRoute, consultaController.getConsulta);
 router.get('/info', privateRoute, consultaController.getInfo);
 
 //usuário
 router.put('/:username', privateRoute, userController.updateInfo);
+
+router.get('/teste', consultaController.testRoute);
 
 export default router;

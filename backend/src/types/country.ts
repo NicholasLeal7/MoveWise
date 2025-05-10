@@ -13,5 +13,7 @@ export type Country = {
     salaryByChosenProfession: number,
     countryDisposableIncome: number,
     countryCostOfLiving: number,
-    eligible: boolean
+    eligible: boolean,
+    resumeCountry: string,
+    photos_url?: string[]
 }

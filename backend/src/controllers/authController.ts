@@ -39,8 +39,8 @@ export const register: RequestHandler = async (req, res, next) => {
     const body = registerSchema.safeParse(req.body);
     if (!body.success) return next({ message: 'Invalid data!', status: 400 });
 
-    const email = await findUserByUsername(body.data.username);
-    if (email) return next({ message: 'Este nome de usuário já está cadastrado!', status: 400 });
+    const user = await findUserByUsername(body.data.username);
+    if (user) return next({ message: 'Este nome de usuário já está cadastrado!', status: 400 });
 
     const newUser = await createUser(body.data);
     if (newUser) {

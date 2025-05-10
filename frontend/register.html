@@ -137,8 +137,14 @@
           password: password1
         }),
         success: function (response) {
-
-          window.location.href = "login.html";
+          const userInfo = {
+            token: response.token,
+            username: response.user.username,
+            name: response.user.name
+          }
+          localStorage.setItem('user-info', JSON.stringify(userInfo));
+          window.location.href = 'perfil.html';
+          return;
         },
         error: function (err) {
           Swal.fire({

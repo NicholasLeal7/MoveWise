@@ -7,6 +7,7 @@ import { getPaisesByContinent, getAllInfo } from "../services/Pais";
 import { Continent } from "../types/continent";
 import z from 'zod';
 import dotenv from 'dotenv';
+import { findUserByUsername } from "../services/User";
 
 dotenv.config();
 
@@ -124,24 +125,37 @@ const extrairMediaSalarial = async (countryAcronym: string, profession: string) 
     }
 };
 
-export const getConsulta: RequestHandler = async (req, res, next) => {
-    //validação dos dados recebidos
-    const userSchema = z.object({
-        profession: z.string().max(100),
-        costOfLiving: z.number(),
-        favoriteContinent: z.array(z.string()),
-        languages: z.array(z.string()),
-        originCountry: z.string().max(50),
-        salary: z.number(),
-        salaryExpect: z.number()
+const obterFotoPais = async (countryName: string) => {
+    const url = `https://api.unsplash.com/search/photos?query=${countryName}+beautiful+city&per_page=3`;
+
+    const response = await axios.get(url, {
+        headers: {
+            'Authorization': `Client-ID ${process.env.PHOTO_API}`
+        }
     });
-    const body = userSchema.safeParse(req.body);
-    if (!body.success) return next({ status: 400, message: 'Dados inválidos!' })
+
+    const imagensFull = response.data.results.map((i: { urls: { full: any; }; }) => i.urls.full);
+    return imagensFull;
+};
+
+export const testRoute: RequestHandler = async (req, res, next) => {
+    const a = await obterFotoPais('Spain');
+    console.log(a);
+
+    res.json({
+        s: 0
+    });
+};
+
+export const getConsulta: RequestHandler = async (req, res, next) => {
+    if (!req.params.username) return next({ status: 400, message: 'Dados inválidos!' });
 
     //variaveis
-    const user = body.data;
+    const user = await findUserByUsername(req.params.username);
     let countries: Country[] = [];
     const paises: any = [];
+
+    if (!user) return next({ status: 400, message: 'Dados inválidos!' });
 
     //filtrar continentes
     for (let i = 0; i < user.favoriteContinent.length; i++) {
@@ -159,6 +173,7 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
                 salaryByChosenProfession: 0,
                 countryDisposableIncome: 0,
                 countryCostOfLiving: 0,
+                resumeCountry: pais.resume_country,
                 eligible: false
             });
         });
@@ -213,31 +228,9 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
     countries = countries
         .sort((a, b) => b.countryDisposableIncome - a.countryDisposableIncome) // decrescente
         .slice(0, 3) // pega os 3 maiores        
-
-    //otimizar com API Gemini / avaliar necessidade    
-    // const prompt = `
-    //     Escolha 3 países entre: ${paises}. O critério para a escolha é a maior expectativa salarial para a profissão de ${user.profession}.
-
-    //     Com base nisso, retorne **apenas** o seguinte JSON (sem nenhum texto antes ou depois das chaves):
-
-    //     {
-    //     "paisesElegiveis": [
-    //         {
-    //         "name": "Nome do país",
-    //         "subregion": "Sub-região do país",
-    //         "salaryExpect": valorEstimadoEmDólares,
-    //         "languages": ["idioma1", "idioma2"],
-    //         "textoApresentacao": "Escreva um breve texto atrativo sobre o país, o descrevendo.",
-    //         "weatherType": "Descreva o tipo de clima predominante no país"
-    //         },
-    //         ...
-    //     ]
-    //     }
-
-    //     Preencha o JSON com 3 países selecionados segundo o critério de maior expectativa salarial para ${user.profession}. Todos os campos devem ser preenchidos.
-    // `;
-    // const resultado = await formatarGemini(prompt);
-    // const json = gerarJson(resultado);
+    for (let i = 0; i < countries.length; i++) {
+        countries[i].photos_url = await obterFotoPais(countries[i].nameEnUs);
+    }
 
     if (countries.length > 0) {
         res.status(200).json({
@@ -255,8 +248,9 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
 
 export const getInfo: RequestHandler = async (req, res, next) => {
     const info = await getAllInfo();
+    const userInfo = await findUserByUsername(req.query.username as string);
 
-    if (!info) return next({ status: 500, message: 'Ocorreu um erro ao buscar os dados.' });
+    if (!info || !userInfo) return next({ status: 500, message: 'Ocorreu um erro ao buscar os dados.' });
 
     //inicializar variaveis
     let professions: string = '';
@@ -266,31 +260,35 @@ export const getInfo: RequestHandler = async (req, res, next) => {
 
     //gerar html de profissões
     for (let i = 0; i < info.professions.length; i++) {
+        const selected = info.professions[i].url_profissao === userInfo.profession ? 'selected' : '';
         professions += `            
-            <option value="${info.professions[i].url_profissao}">${info.professions[i].nome_profissao}</option>
+            <option ${selected} value="${info.professions[i].url_profissao}">${info.professions[i].nome_profissao}</option>
         `;
     }
 
     //gerar html de paises
     for (let i = 0; i < info.countries.length; i++) {
+        const selected = info.countries[i].name_en_us === userInfo.originCountry ? 'selected' : '';
         countries += `            
-            <option value="${info.countries[i].name_en_us}">${info.countries[i].name_pt_br}</option>
+            <option ${selected} value="${info.countries[i].name_en_us}">${info.countries[i].name_pt_br}</option>
         `;
     }
 
 
     //gerar html de subregiao
     for (let i = 0; i < info.subregions.length; i++) {
+        const selected = userInfo.favoriteContinent.includes(info.subregions[i].nome) ? 'selected' : '';
         subregions += `            
-            <option value="${info.subregions[i].nome}">${info.subregions[i].nome_ptbr}</option>
+            <option ${selected} value="${info.subregions[i].nome}">${info.subregions[i].nome_ptbr}</option>
         `;
     }
 
 
-    //gerar html de profissões
+    //gerar html de idiomas
     for (let i = 0; i < info.languages.length; i++) {
+        const selected = userInfo.languages.includes(info.languages[i].nome) ? 'selected' : '';
         languages += `            
-            <option value="${info.languages[i].nome}">${info.languages[i].nome_ptbr}</option>
+            <option ${selected} value="${info.languages[i].nome}">${info.languages[i].nome_ptbr}</option>
         `;
     }
 
@@ -298,7 +296,10 @@ export const getInfo: RequestHandler = async (req, res, next) => {
         professions,
         countries,
         subregions,
-        languages
+        languages,
+        salary: userInfo.salary,
+        costOfLiving: userInfo.costOfLiving,
+        salaryExpect: userInfo.salaryExpect
     }
 
     res.status(200).json({

@@ -17,7 +17,7 @@
 <body class="bg-light py-5">
   <div class="container my-5">
     <div class="card shadow-lg border-0 p-4 rounded-4 mx-auto" style="max-width: 1000px;">
-      <h3 class="mb-2 text-center fw-bold">🎯 Olá João da Silva, personalize seu perfil</h3>
+      <h3 class="mb-2 text-center fw-bold">🎯 Olá <span id="profile_name_span"></span>, personalize seu perfil</h3>
       <p class="text-center text-muted mb-4">Nos ajude a entender sua realidade e encontrar os melhores destinos para
         você!</p>
       <hr>
@@ -91,7 +91,10 @@
             <label for="expectativaSalarial" class="form-label">
               <i class="bi bi-graph-up-arrow me-1 text-success"></i> Expectativa Salarial
             </label>
-            <input type="text" class="form-control money" id="expectativaSalarial" placeholder="R$ 0,00" required>
+            <div class="input-group">
+              <span class="input-group-text">R$</span>
+              <input type="text" class="form-control money" id="expectativaSalarial" placeholder="0000" required>
+            </div>
           </div>
 
         </div>
@@ -132,8 +135,19 @@
       if (!localStorage.getItem('user-info')) return window.location.href = "login.html";
 
       const userInfo = JSON.parse(localStorage.getItem('user-info'));
+      $('#profile_name_span').html(userInfo.name);
 
-      await fetch('http://localhost:3000/info', {
+      Swal.fire({
+        title: 'Carregando...',
+        background: '#ffffff',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        backdrop: 'rgba(255, 255, 255, 1)'
+      });
+
+      await fetch(`http://localhost:3000/info?username=${userInfo.username}`, {
         method: 'GET',
         headers: {
           'Content-type': 'application/json',
@@ -143,11 +157,15 @@
         .then(response => response.json())
         .then(response => {
           if (!response.error) {
-            console.log(response);
-            $('#profissao').append(`${response.professions}`);
-            $('#idiomas').append(`${response.languages}`);
-            $('#continentes').append(`${response.subregions}`);
-            $('#paisOrigem').append(`${response.countries}`);
+            $('#profissao').append(response.html.professions);
+            $('#idiomas').append(response.html.languages);
+            $('#continentes').append(response.html.subregions);
+            $('#paisOrigem').append(response.html.countries);
+            $('#rendaMensal').val(response.html.salary);
+            $('#custoVida').val(response.html.costOfLiving);
+            $('#expectativaSalarial').val(response.html.salaryExpect);
+
+            Swal.close();
           }
         })
 
@@ -190,11 +208,11 @@
             Swal.fire({
               icon: 'success',
               title: 'Perfil salvo com sucesso!',
-              text: 'Agora vamos encontrar os melhores destinos para você...',
-              confirmButtonText: 'Ver recomendações',
+              text: 'Agora estamos prontos para encontrar os melhores destinos para você...',
+              confirmButtonText: 'Começar!',
               confirmButtonColor: '#0d6efd'
             }).then(() => {
-              window.location.href = 'recomendacoes.html';
+              window.location.href = 'home.html';
             });
           },
           error: function (err) {

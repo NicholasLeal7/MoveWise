@@ -11,7 +11,8 @@ type PaisType = {
     photo_path: string[]
     population: number,
     subregion: string,
-    name_pt_br: string
+    name_pt_br: string,
+    resume_country: string
 }
 
 const modelSchema = new Schema<PaisType>({
@@ -25,7 +26,8 @@ const modelSchema = new Schema<PaisType>({
     photo_path: [String],
     population: Number,
     subregion: String,
-    name_pt_br: String
+    name_pt_br: String,
+    resume_country: String
 });
 
 const modelName: string = "paises";
