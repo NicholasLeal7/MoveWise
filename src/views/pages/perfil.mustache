@@ -12,141 +12,556 @@
 
   <!-- Select2 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+  <!-- AOS - Animate On Scroll -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #0d6efd;
+      --primary-light: rgba(13, 110, 253, 0.1);
+      --text-color: #2c3e50;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary-light) 0%, #ffffff 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-color);
+      padding: 2rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Partículas de fundo */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--primary-light);
+      border-radius: 50%;
+      animation: moveParticle 15s infinite linear;
+    }
+
+    @keyframes moveParticle {
+      0% { transform: translate(0, 0); opacity: 0; }
+      50% { opacity: 0.5; }
+      100% { transform: translate(100vw, 100vh); opacity: 0; }
+    }
+
+    .profile-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: none;
+      border-radius: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header-custom {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #0099ff 100%);
+      padding: 2rem;
+      margin: -1.5rem -1.5rem 2rem;
+      border-radius: 2rem 2rem 0 0;
+      color: white;
+      text-align: center;
+    }
+
+    .form-floating {
+      margin-bottom: 1rem;
+    }
+
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+      height: calc(3.5rem + 2px);
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-floating > .form-control:focus,
+    .form-floating > .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem var(--primary-light);
+    }
+
+    .input-group > .form-control {
+      border-radius: 0 1rem 1rem 0;
+      border: 2px solid #e9ecef;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .input-group > .input-group-text {
+      border-radius: 1rem 0 0 1rem;
+      border: 2px solid #e9ecef;
+      border-right: none;
+      background: white;
+      padding: 0.75rem 1rem;
+    }
+
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-label i {
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .form-group:hover .form-label i {
+      transform: scale(1.2);
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--primary-color) 0%, #0099ff 100%);
+      border: none;
+      border-radius: 1rem;
+      padding: 1rem 2rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-save::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: translateX(-100%);
+    }
+
+    .btn-save:hover::after {
+      animation: shine 1.5s infinite;
+    }
+
+    @keyframes shine {
+      to { transform: translateX(50%); }
+    }
+
+    .floating-icon {
+      position: absolute;
+      font-size: 12rem;
+      color: var(--primary-color);
+      opacity: 0.03;
+      pointer-events: none;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .icon-1 { top: 10%; right: -2%; }
+    .icon-2 { bottom: 10%; left: -2%; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    .tooltip-inner {
+      background-color: var(--primary-color);
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+    }
+
+    .bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before, 
+    .bs-tooltip-top .tooltip-arrow::before {
+      border-top-color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .card-header-custom {
+        padding: 1.5rem;
+        margin: -1rem -1rem 1.5rem;
+      }
+    }
+
+    /* Correção do Select2 */
+    .select2-container {
+      width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--single,
+    .select2-container--default .select2-selection--multiple {
+      height: calc(3.5rem + 2px);
+      padding: 0.75rem;
+      border: 2px solid #e9ecef;
+      border-radius: 1rem;
+      background-color: #fff;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      color: var(--text-color);
+      line-height: 1.5;
+      padding-left: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+      height: 100%;
+      width: 30px;
+      right: 5px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+      color: #6c757d;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+      min-height: calc(3.5rem + 2px);
+      height: auto;
+      padding: 0.5rem;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin: -0.25rem;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      background: var(--primary-light);
+      border: none;
+      border-radius: 1rem;
+      padding: 0.25rem 0.75rem;
+      margin: 0.25rem;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      max-width: calc(100% - 0.5rem);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+      color: var(--primary-color);
+      margin-right: 5px;
+      border-right: none;
+      order: 1;
+      padding: 0 4px;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .select2-container--default .select2-search--inline {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .select2-container--default .select2-search--inline .select2-search__field {
+      margin-top: 0.25rem;
+      margin-left: 0.25rem;
+      height: 1.5rem;
+      min-width: 100%;
+      width: 100% !important;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem var(--primary-light);
+    }
+
+    /* Ajuste para o container do Select2 */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .select2-container {
+      width: 100% !important;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Estilo para o ícone de informação */
+    .info-icon {
+      font-size: 0.9rem;
+      color: var(--primary-color);
+      opacity: 0.8;
+      transition: all 0.3s ease;
+      margin-left: 0.5rem;
+      cursor: help;
+    }
+
+    .info-icon:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-label i:not(.info-icon) {
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .select2-dropdown {
+      border: 2px solid var(--primary-light);
+      border-radius: 1rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-top: 5px;
+      z-index: 1060;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .select2-container--default .select2-results__option {
+      padding: 0.5rem 1rem;
+    }
+
+    .select2-container--default .select2-results__option[aria-selected=true] {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+      border: 1px solid #e9ecef;
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+    }
+  </style>
 </head>
 
-<body class="bg-light py-5">
-  <div class="container my-5">
-    <div class="card shadow-lg border-0 p-4 rounded-4 mx-auto" style="max-width: 1000px;">
-      <h3 class="mb-2 text-center fw-bold">🎯 Olá {{name}}, personalize seu perfil</h3>
-      <p class="text-center text-muted mb-4">Nos ajude a entender sua realidade e encontrar os melhores destinos para
-        você!</p>
-      <hr>
+<body>
+  <!-- Partículas de fundo -->
+  <div class="particles">
+    <div class="particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 30%; top: 50%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 70%; top: 30%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 90%; top: 60%; animation-delay: 6s;"></div>
+    <div class="particle" style="left: 20%; top: 80%; animation-delay: 8s;"></div>
+    <div class="particle" style="left: 50%; top: 10%; animation-delay: 10s;"></div>
+  </div>
+
+  <div class="container">
+    <div class="profile-card p-4" data-aos="fade-up">
+      <!-- Ícones flutuantes decorativos -->
+      <i class="bi bi-globe-americas floating-icon icon-1"></i>
+      <i class="bi bi-briefcase floating-icon icon-2"></i>
+
+      <div class="card-header-custom">
+        <h3 class="mb-2 fw-bold">
+          <i class="bi bi-person-circle me-2"></i>Olá {{name}}!
+        </h3>
+        <p class="mb-0 opacity-75">Personalize seu perfil e descubra as melhores oportunidades</p>
+      </div>
 
       <form method="POST" action="../{{username}}">
         <div class="row g-4">
-
           <!-- Renda e Custo de Vida -->
           <div class="col-md-6">
-            <label for="rendaMensal" class="form-label">
-              <i class="bi bi-wallet2 me-1 text-primary"></i> Sua Renda Mensal
-            </label>
-            <div class="input-group">
-              <span class="input-group-text">R$</span>
-              <input type="text" class="form-control money" id="rendaMensal" name="salary" placeholder="0000" value="{{salary}}">
+            <div class="form-group" data-aos="fade-right" data-aos-delay="100">
+              <label for="rendaMensal" class="form-label">
+                <i class="bi bi-wallet2 text-primary"></i>
+                Sua Renda Mensal
+                <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                   title="Informe sua renda mensal atual para comparações mais precisas"></i>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input type="text" class="form-control money" id="rendaMensal" name="salary" placeholder="0000" value="{{salary}}">
+              </div>
             </div>
           </div>
 
           <div class="col-md-6">
-            <label for="custoVida" class="form-label">
-              <i class="bi bi-house-heart-fill me-1 text-danger"></i> Custo de Vida Atual
-            </label>
-            <div class="input-group">
-              <span class="input-group-text">R$</span>
-              <input type="text" class="form-control money" id="custoVida" name="costOfLiving" placeholder="0000" value="{{costOfLiving}}">
+            <div class="form-group" data-aos="fade-left" data-aos-delay="100">
+              <label for="custoVida" class="form-label">
+                <i class="bi bi-house-heart text-danger"></i>
+                Custo de Vida Atual
+                <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                   title="Seus gastos mensais totais com moradia, alimentação, transporte, etc"></i>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input type="text" class="form-control money" id="custoVida" name="costOfLiving" placeholder="0000" value="{{costOfLiving}}">
+              </div>
             </div>
           </div>
 
           <!-- Profissão e País -->
           <div class="col-md-6">
-            <label for="profissao" class="form-label">
-              <i class="bi bi-person-workspace me-1 text-info"></i> Profissão
-            </label>
-            <select class="form-select select2" id="profissao" name="profession" data-placeholder="Selecione sua profissão">
-              <option></option>
-              {{{professions}}}
-            </select>
+            <div class="form-group" data-aos="fade-right" data-aos-delay="200">
+              <label for="profissao" class="form-label">
+                <i class="bi bi-person-workspace text-info"></i>Profissão
+              </label>
+              <select class="form-select select2" id="profissao" name="profession" data-placeholder="Selecione sua profissão">
+                <option></option>
+                {{{professions}}}
+              </select>
+            </div>
           </div>
 
           <div class="col-md-6">
-            <label for="paisOrigem" class="form-label">
-              <i class="bi bi-geo-alt me-1 text-warning"></i> País de Origem
-            </label>
-            <select class="form-select select2" id="paisOrigem" name="originCountry" data-placeholder="Selecione seu país de origem">
-              <option></option>
-              {{{countries}}}
-            </select>
+            <div class="form-group" data-aos="fade-left" data-aos-delay="200">
+              <label for="paisOrigem" class="form-label">
+                <i class="bi bi-geo-alt text-warning"></i>País de Origem
+              </label>
+              <select class="form-select select2" id="paisOrigem" name="originCountry" data-placeholder="Selecione seu país de origem">
+                <option></option>
+                {{{countries}}}
+              </select>
+            </div>
           </div>
 
           <!-- Continente e Idiomas -->
           <div class="col-md-6">
-            <label for="continentes" class="form-label">
-              <i class="bi bi-globe-americas me-1 text-success"></i> Continentes de Interesse
-            </label>
-            <select class="form-select select2" id="continentes" name="favoriteContinent" multiple data-placeholder="Selecione continentes preferidos">
-              <option></option>
-              {{{subregions}}}
-            </select>
+            <div class="form-group" data-aos="fade-right" data-aos-delay="300">
+              <label for="continentes" class="form-label">
+                <i class="bi bi-globe text-success"></i>
+                Continentes de Interesse
+                <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                   title="Selecione os continentes onde você gostaria de morar"></i>
+              </label>
+              <select class="form-select select2" id="continentes" name="favoriteContinent" multiple data-placeholder="Selecione continentes preferidos">
+                <option></option>
+                {{{subregions}}}
+              </select>
+            </div>
           </div>
 
           <div class="col-md-6">
-            <label for="idiomas" class="form-label">
-              <i class="bi bi-translate me-1 text-secondary"></i> Idiomas que você fala
-            </label>
-            <select class="form-select select2" id="idiomas" name="languages" multiple data-placeholder="Selecione os idiomas">
-              <option></option>
-              {{{languages}}}
-            </select>
+            <div class="form-group" data-aos="fade-left" data-aos-delay="300">
+              <label for="idiomas" class="form-label">
+                <i class="bi bi-translate text-secondary"></i>Idiomas que você fala
+              </label>
+              <select class="form-select select2" id="idiomas" name="languages" multiple data-placeholder="Selecione os idiomas">
+                <option></option>
+                {{{languages}}}
+              </select>
+            </div>
           </div>
 
           <!-- Expectativa Salarial -->
           <div class="col-md-6">
-            <label for="expectativaSalarial" class="form-label">
-              <i class="bi bi-graph-up-arrow me-1 text-success"></i> Expectativa Salarial
-            </label>
-            <div class="input-group">
-              <span class="input-group-text">R$</span>
-              <input type="text" class="form-control money" id="expectativaSalarial" name="salaryExpect" placeholder="0000" value="{{salaryExpect}}">
+            <div class="form-group" data-aos="fade-up" data-aos-delay="400">
+              <label for="expectativaSalarial" class="form-label">
+                <i class="bi bi-graph-up-arrow text-success"></i>
+                Expectativa Salarial
+                <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                   title="Qual salário você espera receber em seu próximo destino?"></i>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <input type="text" class="form-control money" id="expectativaSalarial" name="salaryExpect" placeholder="0000" value="{{salaryExpect}}">
+              </div>
             </div>
           </div>
-
         </div>
 
         <!-- Botão -->
-        <div class="text-center mt-5">
-          <button type="submit" class="btn btn-primary px-5 py-2">
-            Salvar Perfil <i class="bi bi-check-circle ms-2"></i>
+        <div class="text-center mt-5" data-aos="zoom-in" data-aos-delay="500">
+          <button type="submit" class="btn btn-save px-5 py-3">
+            <i class="bi bi-check-circle me-2"></i>Salvar Perfil
           </button>
         </div>
       </form>
     </div>
   </div>
 
-
-
-  <!-- Bootstrap JS -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-  <!-- Select2 JS -->
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-  <!-- jQuery Mask Plugin -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-
-  <!-- SweetAlert2 CSS + JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-
-
-  <!-- Inicialização dos plugins -->
   <script>
- $(document).ready(async function () {
+    $(document).ready(function() {
+      // Inicializa AOS
+      AOS.init({
+        duration: 1000,
+        once: true
+      });
 
-      $('.select2').each(function () {
+      // Inicializa tooltips
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+
+      // Inicializa Select2 com tema personalizado
+      $('.select2').each(function() {
         $(this).select2({
           placeholder: $(this).data('placeholder') || "Selecione",
           allowClear: true,
-          width: '100%'
+          width: '100%',
+          dropdownParent: $('body'),
+          language: {
+            noResults: function() {
+              return "Nenhum resultado encontrado";
+            }
+          }
         });
       });
 
+      // Máscara para campos monetários
       $('.money').mask('000.000.000', { reverse: true });
 
+      // Animação nos ícones dos labels ao focar nos campos
+      $('input, select').on('focus', function() {
+        $(this).closest('.form-group').find('.form-label i').css('transform', 'scale(1.2)');
+      }).on('blur', function() {
+        $(this).closest('.form-group').find('.form-label i').css('transform', 'scale(1)');
+      });
+
+      // Adiciona partículas dinamicamente
+      setInterval(function() {
+        const particle = $('<div>').addClass('particle');
+        particle.css({
+          left: Math.random() * 100 + '%',
+          top: Math.random() * 100 + '%',
+          animationDelay: Math.random() * 5 + 's'
+        });
+        $('.particles').append(particle);
+        setTimeout(() => particle.remove(), 15000);
+      }, 3000);
     });
   </script>
 </body>
-
 
 </html>

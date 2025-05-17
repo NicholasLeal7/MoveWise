@@ -11,7 +11,15 @@
     body {
       background: linear-gradient(to right, #f8f9fa, #e9ecef);
       min-height: 100vh;
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+    }
+
+    .main-content {
+      flex: 1 0 auto;
+      width: 100%;
     }
 
     .world-img {
@@ -22,7 +30,6 @@
     }
 
     @keyframes wave {
-
       0%,
       100% {
         transform: rotate(-1deg) scale(1.02);
@@ -40,8 +47,7 @@
     }
 
     footer {
-      position: absolute;
-      bottom: 0;
+      flex-shrink: 0;
       width: 100%;
       background-color: #f8f9fa;
       padding: 1rem 0;
@@ -140,6 +146,12 @@
     .hidden-iframe {
       display: none;
     }
+
+    .container {
+      width: 100%;
+      padding-bottom: 2rem;
+    }
+
   </style>
 </head>
 
@@ -149,7 +161,7 @@
       <div class="container d-flex justify-content-between align-items-center py-2">
 
           <!-- Logo -->
-          <a href="home.html" class="d-flex align-items-center text-decoration-none">
+          <a href="/" class="d-flex align-items-center text-decoration-none">
           <img src="media/logo.jpg" alt="Logo Move Wise" height="40"
               style="border-radius: 10px; border: 1.5px solid #ccc; box-shadow: 0.1px;">
           <span class="ms-2 fw-bold text-dark"></span>
@@ -157,12 +169,12 @@
 
           <div class="d-flex gap-2">
             <!-- Ícone de Perfil -->
-            <a href="home.html" title="Meu Perfil" class="text-secondary fs-1">
+            <a href="/" title="Meu Perfil" class="text-secondary fs-1">
             <i class="bi bi-person-circle"></i>
             </a>
 
           <!-- Ícone de logout -->
-            <a href="logout" title="Sair" class="text-secondary fs-1" style="display: flex; align-items: center; justify-content: center;">
+            <a href="/logout" title="Sair" class="text-secondary fs-1" style="display: flex; align-items: center; justify-content: center;">
             <i class="bi bi-box-arrow-right" style="font-size: 30px;"></i>
             </a>
           </div>
@@ -170,42 +182,44 @@
       </div>
   </header> 
 
-  <div class="container py-5 pb-0">
-    <div class="row align-items-center">
-      <div class="col-md-7 mb-5">
-        <h1 class="display-5 fw-bold mb-3">🌍 Bem-vindo(a) ao Move Wise</h1>
-        <p class="lead text-muted mb-4">
-          Descubra os melhores países para viver, trabalhar e prosperar. Aqui você encontrará oportunidades
-          personalizadas com base no seu perfil profissional, financeiro e cultural.
-        </p>
-        <img src="media/mapamundi-con-nombres-scaled.jpg" alt="Mapa Mundi" class="world-img">
-      </div>
-
-      <div class="col-md-5">
-        <div class="card shadow-lg border-0 mb-4">
-          <div class="card-body">
-            <h4 class="fw-bold mb-4 text-primary"><i class="bi bi-person-circle me-2"></i>Seu Perfil</h4>
-            <p class="mb-2"><i class="bi bi-person-fill me-2 text-secondary"></i><strong>Nome:</strong> {{name}}
-            </p>
-            <p class="mb-2"><i class="bi bi-briefcase-fill me-2 text-secondary"></i><strong>Profissão:</strong>
-              {{profession}}</p>
-            <p class="mb-2"><i class="bi bi-cash-stack me-2 text-secondary"></i><strong>Renda:</strong> <span data-value="salary">R$ {{salary}}</span></p>
-            <p class="mb-2"><i class="bi bi-house-door-fill me-2 text-secondary"></i><strong>Custo de Vida:</strong> <span data-value="cost">R$ {{costOfLiving}}</span></p>
-            <p class="mb-2"><i class="bi bi-globe me-2 text-secondary"></i><strong>Continentes de Interesse:</strong>
-              {{favoriteContinent}}</p>
-            <p class="mb-2"><i class="bi bi-translate me-2 text-secondary"></i><strong>Idiomas:</strong> {{languages}}</p>
-            <p class="mb-0"><i class="bi bi-flag-fill me-2 text-secondary"></i><strong>País de Origem:</strong> {{originCountry}}
-            </p>
-          </div>
+  <div class="main-content">
+    <div class="container py-5 pb-0">
+      <div class="row align-items-center">
+        <div class="col-md-7 mb-5">
+          <h1 class="display-5 fw-bold mb-3">🌍 Bem-vindo(a) ao Move Wise</h1>
+          <p class="lead text-muted mb-4">
+            Descubra os melhores países para viver, trabalhar e prosperar. Aqui você encontrará oportunidades
+            personalizadas com base no seu perfil profissional, financeiro e cultural.
+          </p>
+          <img src="media/mapamundi-con-nombres-scaled.jpg" alt="Mapa Mundi" class="world-img">
         </div>
 
-        <div class="d-flex flex-column gap-3 text-center">
-          <a href="consulta/{{username}}" class="btn btn-primary btn-discover shadow">
-            🌐 Explorar Paises!
-          </a>
-          <a href="perfil" class="btn btn-outline-secondary">
-            <i class="bi bi-pencil-square me-1"></i> Editar meu perfil
-          </a>
+        <div class="col-md-5">
+          <div class="card shadow-lg border-0 mb-4">
+            <div class="card-body">
+              <h4 class="fw-bold mb-4 text-primary"><i class="bi bi-person-circle me-2"></i>Seu Perfil</h4>
+              <p class="mb-2"><i class="bi bi-person-fill me-2 text-secondary"></i><strong>Nome:</strong> {{name}}
+              </p>
+              <p class="mb-2"><i class="bi bi-briefcase-fill me-2 text-secondary"></i><strong>Profissão:</strong>
+                {{profession}}</p>
+              <p class="mb-2"><i class="bi bi-cash-stack me-2 text-secondary"></i><strong>Renda:</strong> <span data-value="salary">R$ {{salary}}</span></p>
+              <p class="mb-2"><i class="bi bi-house-door-fill me-2 text-secondary"></i><strong>Custo de Vida:</strong> <span data-value="cost">R$ {{costOfLiving}}</span></p>
+              <p class="mb-2"><i class="bi bi-globe me-2 text-secondary"></i><strong>Continentes de Interesse:</strong>
+                {{favoriteContinent}}</p>
+              <p class="mb-2"><i class="bi bi-translate me-2 text-secondary"></i><strong>Idiomas:</strong> {{languages}}</p>
+              <p class="mb-0"><i class="bi bi-flag-fill me-2 text-secondary"></i><strong>País de Origem:</strong> {{originCountry}}
+              </p>
+            </div>
+          </div>
+
+          <div class="d-flex flex-column gap-3 text-center">
+            <a href="consulta/{{username}}" class="btn btn-primary btn-discover shadow">
+              🌐 Explorar Paises!
+            </a>
+            <a href="perfil" class="btn btn-outline-secondary">
+              <i class="bi bi-pencil-square me-1"></i> Editar meu perfil
+            </a>
+          </div>
         </div>
       </div>
     </div>
