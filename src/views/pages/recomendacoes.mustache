@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recomendações - Move Wise</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Ícones (opcional) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flag-icons@7.0.0/css/flag-icons.min.css" rel="stylesheet">
+
+  <!-- ApexCharts CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.css" rel="stylesheet">
+
+</head>
+
+<style>
+  .card-ranking {
+    border-radius: 1rem;
+    transition: transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-ranking:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.15);
+  }
+
+  .card-ranking::before {
+    content: attr(data-rank);
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: gold;
+    color: #000;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    border-radius: 50%;
+    z-index: 1;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  }
+
+  .rank-1::before { content: '🥇'; background-color: #ffd700; }
+  .rank-2::before { content: '🥈'; background-color: #c0c0c0; }
+  .rank-3::before { content: '🥉'; background-color: #cd7f32; }
+
+  /* Estilos da Navbar */
+  .nav-pills .nav-link {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+  }
+
+  .nav-pills .nav-link:hover {
+    color: #0d6efd;
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+  }
+
+  .nav-pills .nav-link.active {
+    color: white;
+    background-color: #0d6efd;
+    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .chart-card {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .chart-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+
+  .chart-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+  }
+
+  .chart-container {
+    min-height: 350px;
+    padding: 1rem;
+  }
+</style>
+
+
+<body class="bg-light">
+
+  <header class="bg-white border-bottom shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center py-2">
+      
+      <!-- Logo -->
+      <a href="/" class="d-flex align-items-center text-decoration-none">
+        <img src="/media/logo.jpg" alt="Logo Move Wise" height="40" style="border-radius: 10px; border: 1.5px solid #ccc; box-shadow: 0.1px;">
+        <span class="ms-2 fw-bold text-dark"></span>
+      </a>
+  
+      <div class="d-flex gap-2">
+        <!-- Ícone de Perfil -->
+        <a href="home.html" title="Meu Perfil" class="text-secondary fs-1">
+        <i class="bi bi-person-circle"></i>
+        </a>
+
+        <!-- Ícone de logout -->
+          <a href="logout" title="Sair" class="text-secondary fs-1" style="display: flex; align-items: center; justify-content: center;">
+          <i class="bi bi-box-arrow-right" style="font-size: 30px;"></i>
+          </a>
+        </div>
+  
+    </div>
+  </header>
+
+  <!-- Navbar de navegação -->
+  <nav class="navbar navbar-expand-lg bg-white shadow-sm mb-4">
+    <div class="container">
+      <div class="navbar-nav mx-auto">
+        <div class="nav nav-pills" id="nav-tab" role="tablist">
+          <button class="nav-link active px-4 py-2 rounded-pill me-2" 
+                  id="nav-paises-tab" 
+                  data-bs-toggle="tab" 
+                  data-bs-target="#nav-paises" 
+                  type="button" 
+                  role="tab" 
+                  aria-controls="nav-paises" 
+                  aria-selected="true">
+            <i class="bi bi-globe-americas me-2"></i>Países
+          </button>
+          <button class="nav-link px-4 py-2 rounded-pill" 
+                  id="nav-graficos-tab" 
+                  data-bs-toggle="tab" 
+                  data-bs-target="#nav-graficos" 
+                  type="button" 
+                  role="tab" 
+                  aria-controls="nav-graficos" 
+                  aria-selected="false">
+            <i class="bi bi-bar-chart-fill me-2"></i>Gráficos
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Conteúdo das tabs -->
+  <div class="tab-content" id="nav-tabContent">
+    <!-- Conteúdo da tab Países -->
+    <div class="tab-pane fade show active" id="nav-paises" role="tabpanel" aria-labelledby="nav-paises-tab">
+      <div class="container py-1">
+        <h2 class="text-center mb-4">Resumo das Recomendações</h2>
+
+        <!-- Cards de Resumo -->
+        <div class="row g-4 justify-content-center" id="resumo-recomendacoes">
+          {{#countries}}
+          <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <div class="card h-100 shadow-sm card-ranking rank-{{index}}">
+              <div class="card-body">
+                <h5 class="card-title"><span class="fi fi-{{cca2}}"></span> {{namePtBr}}</h5>
+                <p class="mb-1"><strong>Profissão:</strong> {{user.profession}}</p>
+                <p class="mb-1"><strong>Salário Médio:</strong> R$ <span class="valor-formatado" data-valor="{{salaryByChosenProfession}}"></span></p>
+                <p class="mb-0"><strong>Custo de Vida:</strong> R$ <span class="valor-formatado" data-valor="{{countryCostOfLiving}}"></span></p>
+              </div>
+            </div>
+          </div>
+          {{/countries}}
+        </div>
+
+        <hr class="m-5">
+
+        <!-- Cards Detalhados -->
+        {{#countries}}
+        <div class="card shadow-lg mb-5">
+          <div class="row g-1">
+            <div class="col-md-5">
+              <div id="carousel{{cca2}}" class="carousel slide h-100" data-bs-ride="carousel">
+                <div class="carousel-inner h-100 rounded-start" style="height: 300px;">
+                  {{#photos_url}}
+                  <div class="carousel-item {{#first}}active{{/first}} h-100">
+                    <img src="{{url}}" class="d-block w-100 h-100 object-fit-cover" height="300px" style="object-position: center; max-height: 500px;" alt="{{namePtBr}}">
+                  </div>
+                  {{/photos_url}}
+                </div>
+
+                <!-- Controles -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{cca2}}" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carousel{{cca2}}" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Próximo</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Conteúdo -->
+            <div class="col-md-7">
+              <div class="card-body">
+                <h4 class="card-title mb-3">
+                  <span class="fi fi-{{cca2}} me-2"></span> {{namePtBr}}
+                </h4>
+
+                <p class="card-text">{{resumeCountry}}</p>
+
+                <div class="row text-center g-3 my-4">
+                  <div class="col-md-4">
+                    <div class="card border-primary shadow-sm">
+                      <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                          Salário Médio
+                          <a href="https://www.payscale.com/research/{{cca2Upper}}/Job={{user.professionEnUs}}/Salary" target="_blank" title="Fonte: Payscale">
+                            <i class="bi bi-info-circle text-primary ms-1"></i>
+                          </a>
+                        </h6>
+                        <h5 class="card-title text-primary">R$ <span class="valor-formatado" data-valor="{{salaryByChosenProfession}}"></span></h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="card border-danger shadow-sm">
+                      <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">
+                          Custo de Vida
+                          <a href="https://www.numbeo.com/cost-of-living/country_result.jsp?country={{nameEnUs}}" target="_blank" title="Fonte: Numbeo">
+                            <i class="bi bi-info-circle text-primary ms-1"></i>
+                          </a>
+                        </h6>
+                        <h5 class="card-title text-danger">R$ <span class="valor-formatado" data-valor="{{countryCostOfLiving}}"></span></h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="card border-success shadow-sm">
+                      <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Expectativa Líquida</h6>
+                        <h5 class="card-title text-success">R$ <span class="valor-formatado" data-valor="{{countryDisposableIncome}}"></span></h5>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row text-center g-3 mb-4">
+                  <div class="col-md-4">
+                    <div class="card bg-light border-0 shadow-sm">
+                      <div class="card-body">
+                        <i class="bi bi-geo-alt-fill fs-3 text-danger mb-2"></i>
+                        <p class="mb-1 fw-bold">Capital</p>
+                        <p class="mb-0">{{capital}}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="card bg-light border-0 shadow-sm">
+                      <div class="card-body">
+                        <i class="bi bi-people-fill fs-3 text-success mb-2"></i>
+                        <p class="mb-1 fw-bold">População</p>
+                        <p class="mb-0"><span class="populacao-formatada" data-valor="{{population}}"></span></p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="card bg-light border-0 shadow-sm">
+                      <div class="card-body">
+                        <i class="bi bi-translate fs-3 text-danger mb-2"></i>
+                        <p class="mb-1 fw-bold">Idiomas</p>
+                        <p class="mb-0">{{languages}}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <a href="https://www.linkedin.com/jobs/search/?keywords={{user.professionEnUs}}&location={{nameEnUs}}" 
+                   target="_blank" 
+                   class="btn btn-primary mt-3">
+                  Ver vagas em {{namePtBr}}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{/countries}}
+      </div>
+    </div>
+
+    <!-- Tab de Gráficos -->
+    <div class="tab-pane fade" id="nav-graficos" role="tabpanel" aria-labelledby="nav-graficos-tab">
+      <div class="container py-1 mb-5">
+        <!-- Cabeçalho da seção -->
+        <div class="text-center mb-5">
+          <h2 class="display-5 fw-bold text-primary mb-3">Análise Comparativa</h2>
+          <p class="lead text-muted mb-4">Explore os dados comparativos entre os países recomendados para sua carreira</p>
+          <div class="row justify-content-center">
+            <div class="col-lg-8">
+              <div class="alert alert-info bg-light border-info d-flex align-items-center" role="alert">
+                <i class="bi bi-info-circle-fill text-info fs-4 me-3"></i>
+                <div>
+                  Os dados apresentados são baseados em médias do mercado e podem variar dependendo da região específica, experiência profissional e outros fatores.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cards Informativos -->
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body text-center">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-block mb-3">
+                  <i class="bi bi-currency-exchange text-primary fs-3"></i>
+                </div>
+                <h5 class="card-title">Custo-Benefício</h5>
+                <p class="card-text text-muted">Compare salários e custos de vida para entender o real poder de compra em cada país.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body text-center">
+                <div class="rounded-circle bg-success bg-opacity-10 p-3 d-inline-block mb-3">
+                  <i class="bi bi-piggy-bank-fill text-success fs-3"></i>
+                </div>
+                <h5 class="card-title">Expectativa Líquida</h5>
+                <p class="card-text text-muted">Visualize o valor líquido mensal esperado após descontar o custo de vida em cada região.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body text-center">
+                <div class="rounded-circle bg-warning bg-opacity-10 p-3 d-inline-block mb-3">
+                  <i class="bi bi-people-fill text-warning fs-3"></i>
+                </div>
+                <h5 class="card-title">Demografia</h5>
+                <p class="card-text text-muted">Entenda o contexto populacional de cada país e sua distribuição demográfica.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="row g-4 mb-5">
+          <!-- Gráfico de Barras - Comparação Financeira -->
+          <div class="col-lg-6">
+            <div class="card chart-card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="chart-title text-center">
+                  <i class="bi bi-bar-chart-fill me-2"></i>Comparação Financeira (em R$)
+                </h5>
+                <div id="barChart" class="chart-container"></div>
+                <div class="text-muted small text-center mt-3">
+                  <i class="bi bi-lightbulb-fill me-2 text-warning"></i>
+                  A expectativa líquida considera o salário médio menos o custo de vida mensal
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico de Evolução Salarial -->
+          <div class="col-lg-6">
+            <div class="card chart-card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="chart-title text-center">
+                  <i class="bi bi-graph-up-arrow me-2"></i>Evolução Salarial (em R$)
+                </h5>
+                <div id="salaryChart" class="chart-container"></div>
+                <div class="text-muted small text-center mt-3">
+                  <i class="bi bi-info-circle me-2"></i>
+                  Comparação entre salários iniciais e no topo da carreira
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <!-- Gráfico de Radar - Índices de Qualidade -->
+          <div class="col-lg-8">
+            <div class="card chart-card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="chart-title text-center">
+                  <i class="bi bi-radar me-2"></i>Índices de Qualidade de Vida
+                </h5>
+                <div id="radarChart" class="chart-container"></div>
+                <div class="text-muted small text-center mt-3">
+                  <i class="bi bi-info-circle me-2"></i>
+                  Índices normalizados de 0 a 100 para comparação entre países
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico de População -->
+          <div class="col-lg-4">
+            <div class="card chart-card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="chart-title text-center">
+                  <i class="bi bi-pie-chart-fill me-2"></i>População Total
+                </h5>
+                <div id="donutChart" class="chart-container"></div>
+                <div class="text-muted small text-center mt-3">
+                  <i class="bi bi-people me-2"></i>
+                  Distribuição populacional em milhões de habitantes
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico de Clima -->
+        <div class="row g-4 mb-5">
+          <div class="col-12">
+            <div class="card chart-card shadow-sm">
+              <div class="card-body">
+                <h5 class="chart-title text-center">
+                  <i class="bi bi-thermometer-half me-2"></i>Temperatura Média Mensal
+                </h5>
+                <div id="climateChart" class="chart-container"></div>
+                <div class="text-muted small text-center mt-3">
+                  <i class="bi bi-info-circle me-2"></i>
+                  Temperaturas médias ao longo do ano em cada país
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cards Informativos -->
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-lg h-100" style="background: linear-gradient(135deg, #2980b9 0%, #2c3e50 100%);">
+              <div class="card-body text-white p-4">
+                <div class="d-flex align-items-center mb-4">
+                  <div class="rounded-circle bg-white p-2 me-3">
+                    <i class="bi bi-lightbulb-fill fs-4" style="color: #2980b9;"></i>
+                  </div>
+                  <h4 class="mb-0">Dicas para sua Decisão</h4>
+                </div>
+                <div class="position-relative">
+                  <div class="d-flex align-items-start mb-4 card-item">
+                    <div class="rounded-circle bg-white bg-opacity-25 p-3 me-3">
+                      <i class="bi bi-search fs-4 text-white"></i>
+                    </div>
+                    <div>
+                      <h5 class="mb-2 fw-bold">Pesquise a Fundo</h5>
+                      <p class="mb-0" style="line-height: 1.6;">Além dos dados apresentados, busque experiências reais de outros profissionais que fizeram a mesma mudança.</p>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-start mb-4 card-item">
+                    <div class="rounded-circle bg-white bg-opacity-25 p-3 me-3">
+                      <i class="bi bi-people fs-4 text-white"></i>
+                    </div>
+                    <div>
+                      <h5 class="mb-2 fw-bold">Conecte-se</h5>
+                      <p class="mb-0" style="line-height: 1.6;">Participe de comunidades online de expatriados e faça networking com profissionais que já vivem no país.</p>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-start card-item">
+                    <div class="rounded-circle bg-white bg-opacity-25 p-3 me-3">
+                      <i class="bi bi-clock-history fs-4 text-white"></i>
+                    </div>
+                    <div>
+                      <h5 class="mb-2 fw-bold">Tome seu Tempo</h5>
+                      <p class="mb-0" style="line-height: 1.6;">Uma decisão de mudança de país requer análise cuidadosa. Não se apresse, avalie todos os aspectos.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer bg-transparent border-0 pb-4 px-4">
+                <div class="d-flex align-items-center text-white opacity-75">
+                  <i class="bi bi-info-circle me-2"></i>
+                  <small>Os dados apresentados são médias e podem variar conforme sua situação específica.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card border-0 shadow-lg h-100" style="background: linear-gradient(135deg, #6c5ce7 0%, #273c75 100%);">
+              <div class="card-body text-white p-4">
+                <div class="d-flex align-items-center mb-4">
+                  <div class="rounded-circle bg-white p-2 me-3">
+                    <i class="bi bi-eye fs-4" style="color: #6c5ce7;"></i>
+                  </div>
+                  <h4 class="mb-0">Insights Importantes</h4>
+                </div>
+                <div class="row g-4">
+                  <div class="col-6">
+                    <div class="text-center p-3" style="background: rgba(255,255,255,0.1); border-radius: 15px;">
+                      <div class="rounded-circle bg-white mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-bank2 fs-3" style="color: #6c5ce7;"></i>
+                      </div>
+                      <h6 class="fw-bold mb-2">Economia</h6>
+                      <div class="small opacity-75">Compare PIB e estabilidade econômica</div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-center p-3" style="background: rgba(255,255,255,0.1); border-radius: 15px;">
+                      <div class="rounded-circle bg-white mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-heart-pulse fs-3" style="color: #6c5ce7;"></i>
+                      </div>
+                      <h6 class="fw-bold mb-2">Saúde</h6>
+                      <div class="small opacity-75">Avalie o sistema de saúde</div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-center p-3" style="background: rgba(255,255,255,0.1); border-radius: 15px;">
+                      <div class="rounded-circle bg-white mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-buildings fs-3" style="color: #6c5ce7;"></i>
+                      </div>
+                      <h6 class="fw-bold mb-2">Moradia</h6>
+                      <div class="small opacity-75">Analise custos imobiliários</div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-center p-3" style="background: rgba(255,255,255,0.1); border-radius: 15px;">
+                      <div class="rounded-circle bg-white mx-auto mb-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-shield-check fs-3" style="color: #6c5ce7;"></i>
+                      </div>
+                      <h6 class="fw-bold mb-2">Segurança</h6>
+                      <div class="small opacity-75">Verifique índices de segurança</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer bg-transparent border-0 pb-4 px-4">
+                <div class="d-flex align-items-center text-white opacity-75">
+                  <i class="bi bi-info-circle me-2"></i>
+                  <small>Considere todos estes aspectos em sua análise comparativa</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- ApexCharts JS -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
+
+  <script>
+    // Função para formatar valores
+    function formatarValor(valor, ehPopulacao = false) {
+      if (ehPopulacao) {
+        const numero = parseFloat(valor);
+        if (numero >= 1000000) {
+          return Math.floor(numero / 1000000) + ' milhões';
+        } else if (numero >= 1000) {
+          return Math.floor(numero / 1000) + ' mil';
+        }
+        return numero;
+      }
+      return parseFloat(valor).toLocaleString('pt-BR', { 
+        style: 'decimal',
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      });
+    }
+
+    // Formatar todos os valores ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+      // Formatar valores monetários
+      document.querySelectorAll('.valor-formatado').forEach(elemento => {
+        const valor = elemento.getAttribute('data-valor');
+        elemento.textContent = formatarValor(valor);
+      });
+
+      // Formatar valores de população
+      document.querySelectorAll('.populacao-formatada').forEach(elemento => {
+        const valor = elemento.getAttribute('data-valor');
+        elemento.textContent = formatarValor(valor, true);
+      });
+
+      const countries = JSON.parse('{{{countriesJson}}}');
+      console.log('Países carregados:', countries);
+      
+      // Preparar dados para os gráficos
+      const labels = countries.map(c => c.namePtBr);
+      const salarios = countries.map(c => c.salaryByChosenProfession);
+      const custos = countries.map(c => c.countryCostOfLiving);
+      const liquidos = countries.map(c => c.countryDisposableIncome);
+      const populacoes = countries.map(c => c.population);
+
+      // Definindo cores padrão para usar em todos os gráficos
+      const chartColors = {
+        primary: '#2E93fA',
+        secondary: '#FF5252',
+        success: '#66DA26'
+      };
+
+      // Gráfico de Barras - Comparação Financeira
+      const barOptions = {
+        series: [{
+          name: 'Salário Médio',
+          data: salarios,
+          color: chartColors.primary
+        }, {
+          name: 'Custo de Vida',
+          data: custos,
+          color: chartColors.secondary
+        }, {
+          name: 'Expectativa Líquida',
+          data: liquidos,
+          color: chartColors.success
+        }],
+        chart: {
+          type: 'bar',
+          height: 350,
+          toolbar: {
+            show: false
+          }
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '65%',
+            borderRadius: 8,
+            dataLabels: {
+              position: 'top'
+            }
+          },
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return "R$ " + formatarValor(val);
+          },
+          offsetY: -20,
+          style: {
+            fontSize: '12px',
+            colors: ["#304758"]
+          }
+        },
+        stroke: {
+          show: true,
+          width: 2,
+          colors: ['transparent']
+        },
+        xaxis: {
+          categories: labels,
+          labels: {
+            style: {
+              fontSize: '13px'
+            }
+          }
+        },
+        yaxis: {
+          title: {
+            text: 'Valor em R$'
+          },
+          labels: {
+            formatter: function (val) {
+              return "R$ " + formatarValor(val);
+            }
+          }
+        },
+        fill: {
+          opacity: 1
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) {
+              return "R$ " + formatarValor(val);
+            }
+          }
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'center',
+          offsetY: 10,
+          markers: {
+            fillColors: [chartColors.primary, chartColors.secondary, chartColors.success]
+          }
+        }
+      };
+
+      // Gráfico de Donut - População
+      const donutOptions = {
+        series: populacoes,
+        chart: {
+          type: 'donut',
+          height: 350
+        },
+        labels: labels,
+        colors: [chartColors.primary, chartColors.secondary, chartColors.success],
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '70%',
+              labels: {
+                show: true,
+                total: {
+                  show: true,
+                  label: 'População Total',
+                  formatter: function (w) {
+                    const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                    return formatarValor(total, true);
+                  }
+                }
+              }
+            }
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val, opts) {
+            return formatarValor(opts.w.config.series[opts.seriesIndex], true);
+          }
+        },
+        legend: {
+          position: 'bottom',
+          offsetY: 0
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) {
+              return formatarValor(val, true);
+            }
+          }
+        },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 300
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }]
+      };
+
+      // Gráfico de Radar - Índices de Qualidade de Vida
+      const radarOptions = {
+        series: countries.map(country => ({
+          name: country.namePtBr,
+          data: [
+            country.indexQualityOfLife.purchasingPower,
+            country.indexQualityOfLife.safetyIndex,
+            country.indexQualityOfLife.healthCareIndex,
+            country.indexQualityOfLife.trafficCommute,
+            country.indexQualityOfLife.pollutionIndex
+          ]
+        })),
+        chart: {
+          height: 350,
+          type: 'radar',
+          toolbar: {
+            show: false
+          }
+        },
+        xaxis: {
+          categories: [
+            'Poder de Compra',
+            'Segurança',
+            'Saúde',
+            'Mobilidade',
+            'Qualidade do Ar'
+          ]
+        },
+        yaxis: {
+          show: false,
+          max: 200,
+          min: 0,
+          tickAmount: 8
+        },
+        fill: {
+          opacity: 0.4
+        },
+        markers: {
+          size: 4
+        },
+        plotOptions: {
+          radar: {
+            polygons: {
+              strokeColors: '#e9e9e9',
+              fill: {
+                colors: ['#f8f8f8', '#fff']
+              }
+            }
+          }
+        },
+        colors: [chartColors.primary, chartColors.secondary, chartColors.success],
+        tooltip: {
+          y: {
+            formatter: function(val) {
+              return Math.round(val) + ' pontos';
+            }
+          }
+        }
+      };
+
+      // Gráfico de Evolução Salarial
+      const salaryOptions = {
+        series: [{
+          name: 'Início de Carreira',
+          data: countries.map(c => c.initialSalary),
+          color: chartColors.primary
+        }, {
+          name: 'Média',
+          data: countries.map(c => c.salaryByChosenProfession),
+          color: chartColors.secondary
+        }, {
+          name: 'Topo da Carreira',
+          data: countries.map(c => c.lastSalary),
+          color: chartColors.success
+        }],
+        chart: {
+          type: 'bar',
+          height: 350,
+          toolbar: {
+            show: false
+          }
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '65%',
+            borderRadius: 8,
+            dataLabels: {
+              position: 'top'
+            }
+          },
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return "R$ " + formatarValor(val);
+          },
+          offsetY: -20,
+          style: {
+            fontSize: '12px',
+            colors: ["#304758"]
+          }
+        },
+        stroke: {
+          show: true,
+          width: 2,
+          colors: ['transparent']
+        },
+        xaxis: {
+          categories: labels,
+          labels: {
+            style: {
+              fontSize: '13px'
+            }
+          }
+        },
+        yaxis: {
+          title: {
+            text: 'Salário em R$'
+          },
+          labels: {
+            formatter: function (val) {
+              return "R$ " + formatarValor(val);
+            }
+          }
+        },
+        fill: {
+          opacity: 1
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) {
+              return "R$ " + formatarValor(val);
+            }
+          }
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'center',
+          offsetY: 10,
+          markers: {
+            fillColors: [chartColors.primary, chartColors.secondary, chartColors.success]
+          }
+        }
+      };
+
+      // Gráfico de Linha - Temperatura Média Mensal
+      const climateOptions = {
+        series: countries.map(country => ({
+          name: country.namePtBr,
+          data: country.climate
+        })),
+        chart: {
+          height: 350,
+          type: 'line',
+          toolbar: {
+            show: false
+          },
+          zoom: {
+            enabled: false
+          }
+        },
+        stroke: {
+          curve: 'smooth',
+          width: 3
+        },
+        colors: [chartColors.primary, chartColors.secondary, chartColors.success],
+        xaxis: {
+          categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+          title: {
+            text: 'Meses'
+          }
+        },
+        yaxis: {
+          title: {
+            text: 'Temperatura (°C)'
+          }
+        },
+        markers: {
+          size: 4,
+          hover: {
+            size: 6
+          }
+        },
+        tooltip: {
+          y: {
+            formatter: function(val) {
+              return val + "°C"
+            }
+          }
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'center',
+          offsetY: 10
+        }
+      };
+
+      // Renderizar os gráficos
+      const barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);
+      const donutChart = new ApexCharts(document.querySelector("#donutChart"), donutOptions);
+      const radarChart = new ApexCharts(document.querySelector("#radarChart"), radarOptions);
+      const salaryChart = new ApexCharts(document.querySelector("#salaryChart"), salaryOptions);
+      const climateChart = new ApexCharts(document.querySelector("#climateChart"), climateOptions);
+
+      barChart.render();
+      donutChart.render();
+      radarChart.render();
+      salaryChart.render();
+      climateChart.render();
+    });
+  </script>
+</body>
+</html>

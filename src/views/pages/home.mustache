@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bem-vindo ao Move Wise</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to right, #f8f9fa, #e9ecef);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .world-img {
+      max-width: 100%;
+      border-radius: 1rem;
+      animation: wave 12s ease-in-out infinite;
+      box-shadow: 0 0 30px rgba(0, 123, 255, 0.1);
+    }
+
+    @keyframes wave {
+
+      0%,
+      100% {
+        transform: rotate(-1deg) scale(1.02);
+      }
+
+      50% {
+        transform: rotate(1deg) scale(1.04);
+      }
+    }
+
+    .btn-discover {
+      font-size: 1.25rem;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background-color: #f8f9fa;
+      padding: 1rem 0;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    /* Estilos da tela de carregamento */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .loading-content {
+      text-align: center;
+    }
+
+    .loading-icons {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .loading-icon {
+      font-size: 2rem;
+      animation: bounce 1.5s infinite;
+    }
+
+    .loading-icon:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loading-icon:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    .loading-text {
+      font-size: 1.5rem;
+      color: #0d6efd;
+      margin-top: 20px;
+      font-weight: 500;
+    }
+
+    .loading-subtext {
+      color: #6c757d;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    .progress-bar {
+      width: 200px;
+      height: 4px;
+      background: #e9ecef;
+      border-radius: 4px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .progress {
+      width: 0%;
+      height: 100%;
+      background: #0d6efd;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      animation: progress 2s infinite;
+    }
+
+    @keyframes progress {
+      0% {
+        width: 0%;
+      }
+      100% {
+        width: 100%;
+      }
+    }
+
+    .hidden-iframe {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>  
+
+  <header class="bg-white border-bottom shadow-sm">
+      <div class="container d-flex justify-content-between align-items-center py-2">
+
+          <!-- Logo -->
+          <a href="home.html" class="d-flex align-items-center text-decoration-none">
+          <img src="media/logo.jpg" alt="Logo Move Wise" height="40"
+              style="border-radius: 10px; border: 1.5px solid #ccc; box-shadow: 0.1px;">
+          <span class="ms-2 fw-bold text-dark"></span>
+          </a>
+
+          <div class="d-flex gap-2">
+            <!-- Ícone de Perfil -->
+            <a href="home.html" title="Meu Perfil" class="text-secondary fs-1">
+            <i class="bi bi-person-circle"></i>
+            </a>
+
+          <!-- Ícone de logout -->
+            <a href="logout" title="Sair" class="text-secondary fs-1" style="display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-box-arrow-right" style="font-size: 30px;"></i>
+            </a>
+          </div>
+
+      </div>
+  </header> 
+
+  <div class="container py-5 pb-0">
+    <div class="row align-items-center">
+      <div class="col-md-7 mb-5">
+        <h1 class="display-5 fw-bold mb-3">🌍 Bem-vindo(a) ao Move Wise</h1>
+        <p class="lead text-muted mb-4">
+          Descubra os melhores países para viver, trabalhar e prosperar. Aqui você encontrará oportunidades
+          personalizadas com base no seu perfil profissional, financeiro e cultural.
+        </p>
+        <img src="media/mapamundi-con-nombres-scaled.jpg" alt="Mapa Mundi" class="world-img">
+      </div>
+
+      <div class="col-md-5">
+        <div class="card shadow-lg border-0 mb-4">
+          <div class="card-body">
+            <h4 class="fw-bold mb-4 text-primary"><i class="bi bi-person-circle me-2"></i>Seu Perfil</h4>
+            <p class="mb-2"><i class="bi bi-person-fill me-2 text-secondary"></i><strong>Nome:</strong> {{name}}
+            </p>
+            <p class="mb-2"><i class="bi bi-briefcase-fill me-2 text-secondary"></i><strong>Profissão:</strong>
+              {{profession}}</p>
+            <p class="mb-2"><i class="bi bi-cash-stack me-2 text-secondary"></i><strong>Renda:</strong> <span data-value="salary">R$ {{salary}}</span></p>
+            <p class="mb-2"><i class="bi bi-house-door-fill me-2 text-secondary"></i><strong>Custo de Vida:</strong> <span data-value="cost">R$ {{costOfLiving}}</span></p>
+            <p class="mb-2"><i class="bi bi-globe me-2 text-secondary"></i><strong>Continentes de Interesse:</strong>
+              {{favoriteContinent}}</p>
+            <p class="mb-2"><i class="bi bi-translate me-2 text-secondary"></i><strong>Idiomas:</strong> {{languages}}</p>
+            <p class="mb-0"><i class="bi bi-flag-fill me-2 text-secondary"></i><strong>País de Origem:</strong> {{originCountry}}
+            </p>
+          </div>
+        </div>
+
+        <div class="d-flex flex-column gap-3 text-center">
+          <a href="consulta/{{username}}" class="btn btn-primary btn-discover shadow">
+            🌐 Explorar Paises!
+          </a>
+          <a href="perfil" class="btn btn-outline-secondary">
+            <i class="bi bi-pencil-square me-1"></i> Editar meu perfil
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tela de Carregamento -->
+  <div class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-icons">
+        <i class="bi bi-airplane-fill loading-icon text-primary"></i>
+        <i class="bi bi-globe-americas loading-icon text-success"></i>
+        <i class="bi bi-briefcase-fill loading-icon text-danger"></i>
+      </div>
+      <div class="loading-text">Explorando países...</div>
+      <div class="loading-subtext">Analisando as melhores oportunidades para você</div>
+      <div class="progress-bar">
+        <div class="progress"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- iframe oculto para pré-carregar a página -->
+  <iframe class="hidden-iframe" id="preloadFrame"></iframe>
+
+  <footer>
+    <p>
+      Ao continuar, você concorda com os <a href="/html/termodeuso.html" target="_blank">Termos de Uso</a> do Move Wise.
+    </p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Formatar valores monetários
+    document.addEventListener('DOMContentLoaded', function() {
+      const salaryElement = document.querySelector('[data-value="salary"]');
+      const costElement = document.querySelector('[data-value="cost"]');
+
+      if (salaryElement) {
+        const salary = parseFloat(salaryElement.textContent.replace('R$', '').trim());
+        salaryElement.textContent = `R$ ${salary.toLocaleString('pt-BR', { 
+          style: 'decimal',
+          minimumFractionDigits: 2, 
+          maximumFractionDigits: 2 
+        })}`;
+      }
+
+      if (costElement) {
+        const cost = parseFloat(costElement.textContent.replace('R$', '').trim());
+        costElement.textContent = `R$ ${cost.toLocaleString('pt-BR', { 
+          style: 'decimal',
+          minimumFractionDigits: 2, 
+          maximumFractionDigits: 2 
+        })}`;
+      }
+
+      // Controle da tela de carregamento
+      const loadingTexts = [
+        'Analisando mercado de trabalho...',
+        'Calculando custo de vida...',
+        'Verificando qualidade de vida...',
+        'Comparando oportunidades...',
+        'Finalizando recomendações...'
+      ];
+
+      const loadingSubtexts = [
+        'Buscando as melhores vagas na sua área',
+        'Avaliando despesas e benefícios',
+        'Considerando fatores como segurança e saúde',
+        'Encontrando os países mais compatíveis',
+        'Preparando sua experiência personalizada'
+      ];
+
+      let currentTextIndex = 0;
+      const loadingText = document.querySelector('.loading-text');
+      const loadingSubtext = document.querySelector('.loading-subtext');
+      const preloadFrame = document.getElementById('preloadFrame');
+
+      function updateLoadingText() {
+        loadingText.textContent = loadingTexts[currentTextIndex];
+        loadingSubtext.textContent = loadingSubtexts[currentTextIndex];
+        currentTextIndex = (currentTextIndex + 1) % loadingTexts.length;
+      }
+
+      // Adiciona evento de clique no botão Explorar Países
+      const exploreButton = document.querySelector('.btn-discover');
+      const loadingOverlay = document.querySelector('.loading-overlay');
+
+      if (exploreButton) {
+        exploreButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetUrl = exploreButton.href;
+          
+          // Mostra a tela de carregamento
+          loadingOverlay.style.display = 'flex';
+          
+          // Inicia a troca de textos
+          updateLoadingText();
+          const textInterval = setInterval(updateLoadingText, 2000);
+
+          // Carrega a página no iframe
+          preloadFrame.src = targetUrl;
+
+          // Quando a página estiver carregada, redireciona
+          preloadFrame.onload = function() {
+            clearInterval(textInterval);
+            window.location.href = targetUrl;
+          };
+
+          // Fallback de segurança (caso algo dê errado com o iframe)
+          setTimeout(() => {
+            clearInterval(textInterval);
+            window.location.href = targetUrl;
+          }, 15000);
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>

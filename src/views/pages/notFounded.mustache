@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Página não encontrada | Move Wise</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom right, #f0f8ff, #e3f2fd);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error-card {
+            background-color: #fff;
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            max-width: 600px;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: #0d6efd;
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="error-card">
+        <div class="mb-4">
+            <i class="bi bi-exclamation-triangle-fill error-icon"></i>
+            <h1 class="display-4 fw-bold mt-3">404</h1>
+            <p class="lead">Ops! Essa página não foi encontrada.</p>
+        </div>
+
+        <p class="text-muted mb-4">
+            Parece que você se perdeu no caminho para descobrir os melhores países para viver. Não se preocupe, a gente
+            te ajuda a voltar!
+        </p>
+
+        <a href="/" class="btn btn-primary px-4 py-2">
+            <i class="bi bi-house-door-fill me-2"></i>Voltar
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
