@@ -7,7 +7,10 @@ import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
 dotenv.config();
 
 const options = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    jwtFromRequest: (req: Request) => {
+        const token = (req as Request & { cookies: any }).cookies?.token;
+        return token || null;
+    },
     secretOrKey: process.env.JWT_SECRET_KEY as string,
 };
 
@@ -24,6 +27,6 @@ passport.use(new JWTStrategy(options, async (payload, done) => {
 export const privateRoute: RequestHandler = async (req, res, next) => {
     passport.authenticate('jwt', (err: any, user: any) => {
         req.user = user;
-        return user ? next() : next(notAuthorizedJson);
+        return user ? next() : res.render('pages/login');
     })(req, res, next);
 };

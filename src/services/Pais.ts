@@ -25,3 +25,11 @@ export const getAllInfo = async () => {
         languages
     }
 };
+
+export const getCountryNamePtBr = async (countryNameEnUs: string): Promise<string> => {
+    const country = await Pais.findOne({
+        name_en_us: countryNameEnUs
+    });
+
+    return country?.name_pt_br || countryNameEnUs;
+};

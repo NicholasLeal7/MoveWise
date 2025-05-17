@@ -15,4 +15,4 @@ const modelName: string = "sub_regions";
 export default (connection && connection.models[modelName] ?
     connection.models[modelName] as Model<SubregionType>
     :
-    model<SubregionType>(modelName, modelSchema, modelName))
+    model<SubregionType>(modelName, modelSchema, modelName)) 

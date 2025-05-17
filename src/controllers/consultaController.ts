@@ -8,54 +8,10 @@ import { Continent } from "../types/continent";
 import z from 'zod';
 import dotenv from 'dotenv';
 import { findUserByUsername } from "../services/User";
+import { getProfessionPtBr } from "../services/Profession";
+import { getLanguagesPtBr } from "../services/Language";
 
 dotenv.config();
-
-const formatarGemini = async (prompt: string) => {
-    const apiKey = process.env.GOOGLEAPIKEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-    const body = {
-        contents: [
-            {
-                parts: [
-                    { text: prompt }
-                ]
-            }
-        ]
-    };
-
-    try {
-        const response = await axios.post(url, body, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const resposta = response.data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sem resposta.';
-        return resposta;
-
-    } catch (error: any) {
-        console.error('Erro ao chamar a API do Gemini:', error.response?.data || error.message);
-        return 'Erro ao gerar resposta com Gemini.';
-    }
-};
-
-const gerarJson = (result: string) => {
-    try {
-        //removendo blocos de markdown ```json e ```
-        const cleaned = result
-            .replace(/```json/g, '')
-            .replace(/```/g, '')
-            .trim();
-
-        const json = JSON.parse(cleaned);
-        return json;
-    } catch (error) {
-        console.error("Erro ao converter string para JSON:", error);
-        return null;
-    }
-};
 
 const extrairResumoCustoDeVida = async (countryName: string) => {
     try {
@@ -75,6 +31,61 @@ const extrairResumoCustoDeVida = async (countryName: string) => {
     } catch (error) {
         //console.error(`Erro ao extrair informações de custo de vida para ${countryName}:`, error);
         return 0;
+    }
+};
+
+const extrairIndicesQualidadeDeVida = async (countryName: string) => {
+    try {
+        const url = `https://www.numbeo.com/quality-of-life/country_result.jsp?country=${encodeURIComponent(countryName)}`;
+        const { data: html } = await axios.get(url);
+        const $ = cheerio.load(html);
+
+        //extrai apenas o texto sem HTML        
+        // Função utilitária para pegar o valor antes da vírgula de um índice específico
+        const getValue = (title: string): number => {
+            const row = $('table tbody tr').filter((_, el) => $(el).text().includes(title)).first();
+            const valueText = row.find('td').eq(1).text().trim();
+            return parseInt(valueText.split('.')[0], 10); // pega só o número antes da vírgula
+        };
+
+        // Pegando os 5 valores desejados
+        const purchasingPower = getValue('Purchasing Power Index');
+        const safetyIndex = getValue('Safety Index');
+        const healthCareIndex = getValue('Health Care Index');
+        const trafficCommute = getValue('Traffic Commute Time Index');
+        const pollutionIndex = getValue('Pollution Index');
+
+        return {
+            purchasingPower,
+            safetyIndex,
+            healthCareIndex,
+            trafficCommute,
+            pollutionIndex
+        }
+    } catch (error) {
+        return {
+            purchasingPower: 0,
+            safetyIndex: 0,
+            healthCareIndex: 0,
+            trafficCommute: 0,
+            pollutionIndex: 0
+        };
+    }
+};
+
+export const teste: RequestHandler = async (req, res, next) => {
+    const a = await extrairClimaPais(-12, -38);
+    console.log(a);
+}
+
+const extrairClimaPais = async (latitude: number, longitude: number) => {
+    try {
+        const url = `https://climate.mapresso.com/api/data/?lat=${latitude}&lon=${longitude}`;
+        const { data } = await axios.get(url);
+
+        return data.data.map((mes: { temp: number }) => Math.round(mes.temp));
+    } catch (error) {
+        return Array(12).fill(0);
     }
 };
 
@@ -134,24 +145,21 @@ const obterFotoPais = async (countryName: string) => {
         }
     });
 
-    const imagensFull = response.data.results.map((i: { urls: { full: any; }; }) => i.urls.full);
+    const imagensFull = response.data.results.map((i: { urls: { full: any; }; }, index: number) => ({
+        url: i.urls.full,
+        first: index === 0
+    }));
     return imagensFull;
-};
-
-export const testRoute: RequestHandler = async (req, res, next) => {
-    const a = await obterFotoPais('Spain');
-    console.log(a);
-
-    res.json({
-        s: 0
-    });
 };
 
 export const getConsulta: RequestHandler = async (req, res, next) => {
     if (!req.params.username) return next({ status: 400, message: 'Dados inválidos!' });
 
     //variaveis
-    const user = await findUserByUsername(req.params.username);
+    const user: any = await findUserByUsername(req.params.username);
+    if (user.profession) {
+        user.professionPtBr = await getProfessionPtBr(user.profession);
+    }
     let countries: Country[] = [];
     const paises: any = [];
 
@@ -171,10 +179,14 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
                 population: pais.population,
                 languages: pais.languages,
                 salaryByChosenProfession: 0,
+                initialSalary: 0,
+                lastSalary: 0,
                 countryDisposableIncome: 0,
                 countryCostOfLiving: 0,
                 resumeCountry: pais.resume_country,
-                eligible: false
+                eligible: false,
+                lat: pais.lat_lng[0],
+                long: pais.lat_lng[1]
             });
         });
     }
@@ -196,7 +208,9 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
         const salarioPais = await extrairMediaSalarial(countries[i].cca2, user.profession);
 
         if (salarioPais?.mediaDeCarreira) {
-            countries[i].salaryByChosenProfession = parseFloat(salarioPais?.mediaDeCarreira);
+            countries[i].salaryByChosenProfession = parseInt(salarioPais?.mediaDeCarreira);
+            countries[i].initialSalary = parseInt(salarioPais?.inicioDeCarreira);
+            countries[i].lastSalary = parseInt(salarioPais?.fimDeCarreira);
             if ((parseFloat(salarioPais.mediaDeCarreira) / 12) >= user.salaryExpect) {
                 //a expectativa salarial do pais em análise é superir a expectativa do usuário
                 //então este país é elegível
@@ -214,7 +228,7 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
         const custoDeVidaPais = await extrairResumoCustoDeVida(countries[i].nameEnUs);
         const countryDisposableIncome = (countries[i].salaryByChosenProfession / 12) - custoDeVidaPais;
         countries[i].countryCostOfLiving = custoDeVidaPais;
-        countries[i].countryDisposableIncome = countryDisposableIncome;
+        countries[i].countryDisposableIncome = parseInt(countryDisposableIncome.toFixed(0));
 
         if (currentDisposableIncome > countryDisposableIncome) {
             //se o que sobra do país atual é maior que o país sendo comparado, 
@@ -229,80 +243,35 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
         .sort((a, b) => b.countryDisposableIncome - a.countryDisposableIncome) // decrescente
         .slice(0, 3) // pega os 3 maiores        
     for (let i = 0; i < countries.length; i++) {
+        countries[i].cca2 = countries[i].cca2.toLowerCase();
+        countries[i].cca2Upper = countries[i].cca2.toUpperCase();
+        countries[i].salaryByChosenProfession = countries[i].salaryByChosenProfession / 12;
+        countries[i].initialSalary = countries[i].initialSalary / 12;
+        countries[i].lastSalary = countries[i].lastSalary / 12;
         countries[i].photos_url = await obterFotoPais(countries[i].nameEnUs);
+        countries[i].languages = await getLanguagesPtBr(countries[i].languages);
+        countries[i].indexQualityOfLife = await extrairIndicesQualidadeDeVida(countries[i].nameEnUs);
+        countries[i].climate = await extrairClimaPais(countries[i].lat, countries[i].long);
     }
 
     if (countries.length > 0) {
-        res.status(200).json({
-            error: false,
-            countries
-        })
-    } else {
-        //enviando erro para o errorHandler
-        next({
-            status: 200,
-            message: 'Nenhum país foi encontrado para esta busca.'
+        res.render('pages/recomendacoes', {
+            username: req.params.username,
+            countries: countries,
+            countriesJson: JSON.stringify(countries),
+            user: {
+                name: (req.user as any).name,
+                profession: user.professionPtBr || user.profession,
+                professionEnUs: user.profession,
+                salary: user.salary,
+                costOfLiving: user.costOfLiving,
+                favoriteContinent: user.favoriteContinent.join(', '),
+                languages: user.languages.join(', '),
+                originCountry: user.originCountry,
+                salaryExpect: user.salaryExpect
+            }
         });
+    } else {
+        res.render('pages/noCountriesFounded');
     }
-};
-
-export const getInfo: RequestHandler = async (req, res, next) => {
-    const info = await getAllInfo();
-    const userInfo = await findUserByUsername(req.query.username as string);
-
-    if (!info || !userInfo) return next({ status: 500, message: 'Ocorreu um erro ao buscar os dados.' });
-
-    //inicializar variaveis
-    let professions: string = '';
-    let countries: string = '';
-    let subregions: string = '';
-    let languages: string = '';
-
-    //gerar html de profissões
-    for (let i = 0; i < info.professions.length; i++) {
-        const selected = info.professions[i].url_profissao === userInfo.profession ? 'selected' : '';
-        professions += `            
-            <option ${selected} value="${info.professions[i].url_profissao}">${info.professions[i].nome_profissao}</option>
-        `;
-    }
-
-    //gerar html de paises
-    for (let i = 0; i < info.countries.length; i++) {
-        const selected = info.countries[i].name_en_us === userInfo.originCountry ? 'selected' : '';
-        countries += `            
-            <option ${selected} value="${info.countries[i].name_en_us}">${info.countries[i].name_pt_br}</option>
-        `;
-    }
-
-
-    //gerar html de subregiao
-    for (let i = 0; i < info.subregions.length; i++) {
-        const selected = userInfo.favoriteContinent.includes(info.subregions[i].nome) ? 'selected' : '';
-        subregions += `            
-            <option ${selected} value="${info.subregions[i].nome}">${info.subregions[i].nome_ptbr}</option>
-        `;
-    }
-
-
-    //gerar html de idiomas
-    for (let i = 0; i < info.languages.length; i++) {
-        const selected = userInfo.languages.includes(info.languages[i].nome) ? 'selected' : '';
-        languages += `            
-            <option ${selected} value="${info.languages[i].nome}">${info.languages[i].nome_ptbr}</option>
-        `;
-    }
-
-    const html = {
-        professions,
-        countries,
-        subregions,
-        languages,
-        salary: userInfo.salary,
-        costOfLiving: userInfo.costOfLiving,
-        salaryExpect: userInfo.salaryExpect
-    }
-
-    res.status(200).json({
-        html
-    });
 };
