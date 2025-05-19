@@ -116,16 +116,16 @@
       }
     }
 
-    .progress-bar {
-      width: 200px;
+    .loading-progress-container {
+      width: 300px;
       height: 4px;
       background: #e9ecef;
       border-radius: 4px;
-      margin-top: 20px;
+      margin: 20px auto 0;
       overflow: hidden;
     }
 
-    .progress {
+    .loading-progress-bar {
       width: 0%;
       height: 100%;
       background: #0d6efd;
@@ -207,7 +207,8 @@
               <p class="mb-2"><i class="bi bi-globe me-2 text-secondary"></i><strong>Continentes de Interesse:</strong>
                 {{favoriteContinent}}</p>
               <p class="mb-2"><i class="bi bi-translate me-2 text-secondary"></i><strong>Idiomas:</strong> {{languages}}</p>
-              <p class="mb-0"><i class="bi bi-flag-fill me-2 text-secondary"></i><strong>País de Origem:</strong> {{originCountry}}
+              <p class="mb-2"><i class="bi bi-flag-fill me-2 text-secondary"></i><strong>País de Origem:</strong> {{originCountry}}
+              <p class="mb-0"><i class="bi bi-graph-up-arrow me-2 text-secondary"></i><strong>Expectativa Salarial:</strong> <span data-value="expectedSalary" data-raw-value="{{expectedSalary}}">R$ {{expectedSalary}}</span></p>
               </p>
             </div>
           </div>
@@ -235,8 +236,8 @@
       </div>
       <div class="loading-text">Explorando países...</div>
       <div class="loading-subtext">Analisando as melhores oportunidades para você</div>
-      <div class="progress-bar">
-        <div class="progress"></div>
+      <div class="loading-progress-container">
+        <div class="loading-progress-bar"></div>
       </div>
     </div>
   </div>
@@ -253,10 +254,11 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Formatar valores monetários
     document.addEventListener('DOMContentLoaded', function() {
+      // Formatação dos valores monetários
       const salaryElement = document.querySelector('[data-value="salary"]');
       const costElement = document.querySelector('[data-value="cost"]');
+      const expectedSalaryElement = document.querySelector('[data-value="expectedSalary"]');
 
       if (salaryElement) {
         const salary = parseFloat(salaryElement.textContent.replace('R$', '').trim());
@@ -270,6 +272,16 @@
       if (costElement) {
         const cost = parseFloat(costElement.textContent.replace('R$', '').trim());
         costElement.textContent = `R$ ${cost.toLocaleString('pt-BR', { 
+          style: 'decimal',
+          minimumFractionDigits: 2, 
+          maximumFractionDigits: 2 
+        })}`;
+      }
+
+      // Formatação da expectativa salarial
+      if (expectedSalaryElement) {
+        const expectedSalary = parseFloat(expectedSalaryElement.textContent.replace('R$', '').trim());
+        expectedSalaryElement.textContent = `R$ ${expectedSalary.toLocaleString('pt-BR', { 
           style: 'decimal',
           minimumFractionDigits: 2, 
           maximumFractionDigits: 2 
@@ -296,44 +308,36 @@
       let currentTextIndex = 0;
       const loadingText = document.querySelector('.loading-text');
       const loadingSubtext = document.querySelector('.loading-subtext');
-      const preloadFrame = document.getElementById('preloadFrame');
+      const loadingOverlay = document.querySelector('.loading-overlay');
+      const exploreButton = document.querySelector('.btn-discover');
 
       function updateLoadingText() {
-        loadingText.textContent = loadingTexts[currentTextIndex];
-        loadingSubtext.textContent = loadingSubtexts[currentTextIndex];
-        currentTextIndex = (currentTextIndex + 1) % loadingTexts.length;
+        if (loadingText && loadingSubtext) {
+          loadingText.textContent = loadingTexts[currentTextIndex];
+          loadingSubtext.textContent = loadingSubtexts[currentTextIndex];
+          currentTextIndex = (currentTextIndex + 1) % loadingTexts.length;
+        }
       }
-
-      // Adiciona evento de clique no botão Explorar Países
-      const exploreButton = document.querySelector('.btn-discover');
-      const loadingOverlay = document.querySelector('.loading-overlay');
 
       if (exploreButton) {
         exploreButton.addEventListener('click', function(e) {
           e.preventDefault();
-          const targetUrl = exploreButton.href;
-          
+          const targetUrl = this.href;
+
           // Mostra a tela de carregamento
-          loadingOverlay.style.display = 'flex';
-          
+          if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
+          }
+
           // Inicia a troca de textos
           updateLoadingText();
           const textInterval = setInterval(updateLoadingText, 2000);
 
-          // Carrega a página no iframe
-          preloadFrame.src = targetUrl;
-
-          // Quando a página estiver carregada, redireciona
-          preloadFrame.onload = function() {
-            clearInterval(textInterval);
-            window.location.href = targetUrl;
-          };
-
-          // Fallback de segurança (caso algo dê errado com o iframe)
+          // Redireciona após um tempo
           setTimeout(() => {
             clearInterval(textInterval);
             window.location.href = targetUrl;
-          }, 15000);
+          }, 8000); // Reduzido para 8 segundos
         });
       }
     });

@@ -109,12 +109,12 @@
   
       <div class="d-flex gap-2">
         <!-- Ícone de Perfil -->
-        <a href="home.html" title="Meu Perfil" class="text-secondary fs-1">
+        <a href="/" title="Meu Perfil" class="text-secondary fs-1">
         <i class="bi bi-person-circle"></i>
         </a>
 
         <!-- Ícone de logout -->
-          <a href="logout" title="Sair" class="text-secondary fs-1" style="display: flex; align-items: center; justify-content: center;">
+          <a href="../logout" title="Sair" class="text-secondary fs-1" style="display: flex; align-items: center; justify-content: center;">
           <i class="bi bi-box-arrow-right" style="font-size: 30px;"></i>
           </a>
         </div>
@@ -186,7 +186,7 @@
                 <div class="carousel-inner h-100 rounded-start" style="height: 300px;">
                   {{#photos_url}}
                   <div class="carousel-item {{#first}}active{{/first}} h-100">
-                    <img src="{{url}}" class="d-block w-100 h-100 object-fit-cover" height="300px" style="object-position: center; max-height: 500px;" alt="{{namePtBr}}">
+                    <img src="{{url}}" class="d-block w-100 h-100 object-fit-cover" height="500px" style="object-position: center; max-height: 500px; min-height: 500px;" alt="{{namePtBr}}">
                   </div>
                   {{/photos_url}}
                 </div>
@@ -394,7 +394,7 @@
                 <div id="radarChart" class="chart-container"></div>
                 <div class="text-muted small text-center mt-3">
                   <i class="bi bi-info-circle me-2"></i>
-                  Índices normalizados de 0 a 100 para comparação entre países
+                  Índices normalizados de 0 a 200 para comparação entre países
                 </div>
               </div>
             </div>
@@ -687,7 +687,45 @@
           markers: {
             fillColors: [chartColors.primary, chartColors.secondary, chartColors.success]
           }
-        }
+        },
+        responsive: [{
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 500
+            },
+            plotOptions: {
+              bar: {
+                horizontal: true,
+                dataLabels: {
+                  position: 'right'
+                }
+              }
+            },
+            dataLabels: {
+              offsetX: 10,
+              offsetY: 0
+            },
+            xaxis: {
+              categories: labels,
+              labels: {
+                style: {
+                  fontSize: '13px'
+                }
+              }
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  fontSize: '13px'
+                }
+              }
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }]
       };
 
       // Gráfico de Donut - População
@@ -712,6 +750,11 @@
                     const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
                     return formatarValor(total, true);
                   }
+                },
+                value: {
+                  formatter: function (val) {
+                    return formatarValor(val, true);
+                  }
                 }
               }
             }
@@ -732,6 +775,11 @@
             formatter: function (val) {
               return formatarValor(val, true);
             }
+          },
+          custom: function({ series, seriesIndex, w }) {
+            return '<div class="custom-tooltip">' +
+              '<span>' + w.config.labels[seriesIndex] + ': ' + formatarValor(series[seriesIndex], true) + '</span>' +
+              '</div>';
           }
         },
         responsive: [{
@@ -890,7 +938,45 @@
           markers: {
             fillColors: [chartColors.primary, chartColors.secondary, chartColors.success]
           }
-        }
+        },
+        responsive: [{
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 500
+            },
+            plotOptions: {
+              bar: {
+                horizontal: true,
+                dataLabels: {
+                  position: 'right'
+                }
+              }
+            },
+            dataLabels: {
+              offsetX: 10,
+              offsetY: 0
+            },
+            xaxis: {
+              categories: labels,
+              labels: {
+                style: {
+                  fontSize: '13px'
+                }
+              }
+            },
+            yaxis: {
+              labels: {
+                style: {
+                  fontSize: '13px'
+                }
+              }
+            },
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }]
       };
 
       // Gráfico de Linha - Temperatura Média Mensal

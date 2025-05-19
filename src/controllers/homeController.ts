@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { findUserByUsername } from "../services/User";
 import { getProfessionPtBr } from "../services/Profession";
 import { getLanguagesPtBr } from "../services/Language";
-import { getSubRegionsPtBr } from "../services/SubRegion";
+import { getSubRegionsPtBr } from "../services/Subregion";  
 import { getCountryNamePtBr } from "../services/Pais";
 
 export const getHome: RequestHandler = async (req, res) => {
@@ -23,6 +23,7 @@ export const getHome: RequestHandler = async (req, res) => {
     // Traduzir país de origem
     const originCountryPtBr = await getCountryNamePtBr(userInfo.originCountry);
 
+
     res.render('pages/home', {
         username: username,
         name: (req.user as any).name,
@@ -31,7 +32,8 @@ export const getHome: RequestHandler = async (req, res) => {
         costOfLiving: userInfo.costOfLiving,
         favoriteContinent: continentsPtBr.join(', '),
         languages: languagesPtBr.join(', '),
-        originCountry: originCountryPtBr
+        originCountry: originCountryPtBr,
+        expectedSalary: userInfo.salaryExpect
     });
 };
 

@@ -402,7 +402,7 @@
               </label>
               <div class="input-group">
                 <span class="input-group-text">R$</span>
-                <input type="text" class="form-control money" id="rendaMensal" name="salary" placeholder="0000" value="{{salary}}">
+                <input type="text" class="form-control money" id="rendaMensal" name="salary" placeholder="0000" value="{{salary}}" required>
               </div>
             </div>
           </div>
@@ -417,7 +417,7 @@
               </label>
               <div class="input-group">
                 <span class="input-group-text">R$</span>
-                <input type="text" class="form-control money" id="custoVida" name="costOfLiving" placeholder="0000" value="{{costOfLiving}}">
+                <input type="text" class="form-control money" id="custoVida" name="costOfLiving" placeholder="0000" value="{{costOfLiving}}" required>
               </div>
             </div>
           </div>
@@ -428,7 +428,7 @@
               <label for="profissao" class="form-label">
                 <i class="bi bi-person-workspace text-info"></i>Profissão
               </label>
-              <select class="form-select select2" id="profissao" name="profession" data-placeholder="Selecione sua profissão">
+              <select class="form-select select2" id="profissao" name="profession" data-placeholder="Selecione sua profissão" required>
                 <option></option>
                 {{{professions}}}
               </select>
@@ -440,7 +440,7 @@
               <label for="paisOrigem" class="form-label">
                 <i class="bi bi-geo-alt text-warning"></i>País de Origem
               </label>
-              <select class="form-select select2" id="paisOrigem" name="originCountry" data-placeholder="Selecione seu país de origem">
+              <select class="form-select select2" id="paisOrigem" name="originCountry" data-placeholder="Selecione seu país de origem" required>
                 <option></option>
                 {{{countries}}}
               </select>
@@ -456,7 +456,7 @@
                 <i class="bi bi-info-circle info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
                    title="Selecione os continentes onde você gostaria de morar"></i>
               </label>
-              <select class="form-select select2" id="continentes" name="favoriteContinent" multiple data-placeholder="Selecione continentes preferidos">
+              <select class="form-select select2" id="continentes" name="favoriteContinent" multiple data-placeholder="Selecione continentes preferidos" required>
                 <option></option>
                 {{{subregions}}}
               </select>
@@ -468,7 +468,7 @@
               <label for="idiomas" class="form-label">
                 <i class="bi bi-translate text-secondary"></i>Idiomas que você fala
               </label>
-              <select class="form-select select2" id="idiomas" name="languages" multiple data-placeholder="Selecione os idiomas">
+              <select class="form-select select2" id="idiomas" name="languages" multiple data-placeholder="Selecione os idiomas" required>
                 <option></option>
                 {{{languages}}}
               </select>
@@ -486,14 +486,14 @@
               </label>
               <div class="input-group">
                 <span class="input-group-text">R$</span>
-                <input type="text" class="form-control money" id="expectativaSalarial" name="salaryExpect" placeholder="0000" value="{{salaryExpect}}">
+                <input type="text" class="form-control money" id="expectativaSalarial" name="salaryExpect" placeholder="0000" value="{{salaryExpect}}" required>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Botão -->
-        <div class="text-center mt-5" data-aos="zoom-in" data-aos-delay="500">
+        <div class="text-center mt-5">
           <button type="submit" class="btn btn-save px-5 py-3">
             <i class="bi bi-check-circle me-2"></i>Salvar Perfil
           </button>

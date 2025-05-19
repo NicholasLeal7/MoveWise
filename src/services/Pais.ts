@@ -11,10 +11,10 @@ export const getPaisesByContinent = async (continent: string) => {
 };
 
 export const getAllInfo = async () => {
-    const professions = await Profession.find();
-    const subregions = await Subregion.find();
-    const countries = await Pais.find();
-    const languages = await Language.find()
+    const professions = await Profession.find().sort({ nome_profissao: 1 });
+    const subregions = await Subregion.find().sort({ nome_ptbr: 1 });
+    const countries = await Pais.find().sort({ name_pt_br: 1 });
+    const languages = await Language.find().sort({ nome_ptbr: 1 });
 
     if (!professions || !subregions || !countries || !languages) return false;
 
