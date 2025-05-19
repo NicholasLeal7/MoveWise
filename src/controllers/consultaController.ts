@@ -27,9 +27,9 @@ const extrairResumoCustoDeVida = async (countryName: string) => {
         const resumoTexto = $('.seeding-call.table_color.summary.limit_size_ad_right.padding_lower.other_highlight_color ul li:nth-of-type(2)').text().trim();
         const valorCustoDeVida = resumoTexto.split('.')[0].replace(/[^\d]/g, '');
 
-        // const cotacaoDolar = await obterCotacao('USD') || '1';
+        const cotacaoDolar = await obterCotacao('USD') || '1';
 
-        return parseFloat(valorCustoDeVida) /** parseFloat(cotacaoDolar)*/;
+        return parseFloat(valorCustoDeVida) * parseFloat(cotacaoDolar);
     } catch (error) {
         //console.error(`Erro ao extrair informações de custo de vida para ${countryName}:`, error);
         return 0;
