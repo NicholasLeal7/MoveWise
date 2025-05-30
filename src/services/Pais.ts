@@ -10,6 +10,13 @@ export const getPaisesByContinent = async (continent: string) => {
     return paises;
 };
 
+export const getCountryInfo = async (country: string) => {
+    const countryInfo = await Pais.findOne({
+        name_en_us: country
+    });
+    return countryInfo;
+};
+
 export const getAllInfo = async () => {
     const professions = await Profession.find().sort({ nome_profissao: 1 });
     const subregions = await Subregion.find().sort({ nome_ptbr: 1 });

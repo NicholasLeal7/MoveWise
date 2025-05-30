@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { Language } from "../types/language";
 import { Country } from "../types/country";
-import { getPaisesByContinent, getAllInfo } from "../services/Pais";
+import { getPaisesByContinent, getAllInfo, getCountryInfo } from "../services/Pais";
 import { Continent } from "../types/continent";
 import z from 'zod';
 import dotenv from 'dotenv';
@@ -75,11 +75,6 @@ const extrairIndicesQualidadeDeVida = async (countryName: string) => {
     }
 };
 
-export const teste: RequestHandler = async (req, res, next) => {
-    const a = await extrairClimaPais(-12, -38);
-    console.log(a);
-}
-
 const extrairClimaPais = async (latitude: number, longitude: number) => {
     try {
         const url = `https://climate.mapresso.com/api/data/?lat=${latitude}&lon=${longitude}`;
@@ -101,7 +96,7 @@ const obterCotacao = async (tipoMoeda: string): Promise<string | null> => {
         const bid = response.data[chave]?.bid;
         return bid || null;
     } catch (error) {
-        console.error('Erro ao obter cotação:', error);
+        //console.error('Erro ao obter cotação:', error);
         return null;
     }
 };
@@ -161,119 +156,168 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
     const user: any = await findUserByUsername(req.params.username);
     if (user.profession) {
         user.professionPtBr = await getProfessionPtBr(user.profession);
-    }
-    let countries: Country[] = [];
-    const paises: any = [];
 
-    if (!user) return next({ status: 400, message: 'Dados inválidos!' });
+        let countries: Country[] = [];
+        const paises: any = [];
+        const userCountry = await getCountryInfo(user.originCountry);
+        let userCountryInfo: Country;
 
-    //filtrar continentes
-    for (let i = 0; i < user.favoriteContinent.length; i++) {
-        const infoPais = await getPaisesByContinent(user.favoriteContinent[i]);
-        infoPais.forEach((pais) => {
-            countries.push({
-                namePtBr: pais.name_pt_br,
-                nameEnUs: pais.name_en_us,
-                cca2: pais.code_en_us,
-                capital: pais.capital,
-                currencies: pais.currencies,
-                subregion: [pais.subregion as Continent],
-                population: pais.population,
-                languages: pais.languages,
-                salaryByChosenProfession: 0,
-                initialSalary: 0,
-                lastSalary: 0,
-                countryDisposableIncome: 0,
-                countryCostOfLiving: 0,
-                resumeCountry: pais.resume_country,
-                eligible: false,
-                lat: pais.lat_lng[0],
-                long: pais.lat_lng[1]
+        if (!user) return next({ status: 400, message: 'Dados inválidos!' });
+        if (!userCountry) return next({ status: 400, message: 'Dados inválidos!' });
+
+        //filtrar continentes
+        for (let i = 0; i < user.favoriteContinent.length; i++) {
+            const infoPais = await getPaisesByContinent(user.favoriteContinent[i]);
+            infoPais.forEach((pais) => {
+                if (pais.name_en_us !== user.originCountry) {
+                    countries.push({
+                        namePtBr: pais.name_pt_br,
+                        nameEnUs: pais.name_en_us,
+                        cca2: pais.code_en_us,
+                        capital: pais.capital,
+                        currencies: pais.currencies,
+                        subregion: [pais.subregion as Continent],
+                        population: pais.population,
+                        languages: pais.languages,
+                        salaryByChosenProfession: 0,
+                        initialSalary: 0,
+                        lastSalary: 0,
+                        countryDisposableIncome: 0,
+                        countryCostOfLiving: 0,
+                        resumeCountry: pais.resume_country,
+                        eligible: false,
+                        lat: pais.lat_lng[0],
+                        long: pais.lat_lng[1],
+                        myCountry: false
+                    });
+                }
             });
-        });
-    }
-
-    //filtrar países por idioma e obter nomes    
-    countries = countries.filter((pais: any) => {
-        const idiomas: Language[] = pais.languages;
-
-        if (idiomas.some(idioma => user.languages.includes(idioma))) {
-            paises.push(pais.namePtBr);
-            return true;
+        }
+        userCountryInfo = {
+            namePtBr: userCountry.name_pt_br,
+            nameEnUs: userCountry.name_en_us,
+            cca2: userCountry.code_en_us,
+            capital: userCountry.capital,
+            currencies: userCountry.currencies,
+            subregion: [userCountry.subregion as Continent],
+            population: userCountry.population,
+            languages: userCountry.languages,
+            salaryByChosenProfession: 0,
+            initialSalary: 0,
+            lastSalary: 0,
+            countryDisposableIncome: 0,
+            countryCostOfLiving: 0,
+            resumeCountry: userCountry.resume_country,
+            eligible: false,
+            lat: userCountry.lat_lng[0],
+            long: userCountry.lat_lng[1],
+            myCountry: true
         }
 
-        return false;
-    });
 
-    //filtrar salario            
-    for (let i = 0; i < countries.length; i++) {
-        const salarioPais = await extrairMediaSalarial(countries[i].cca2, user.profession);
+        //filtrar países por idioma e obter nomes    
+        countries = countries.filter((pais: any) => {
+            const idiomas: Language[] = pais.languages;
 
-        if (salarioPais?.mediaDeCarreira) {
-            countries[i].salaryByChosenProfession = parseInt(salarioPais?.mediaDeCarreira);
-            countries[i].initialSalary = parseInt(salarioPais?.inicioDeCarreira);
-            countries[i].lastSalary = parseInt(salarioPais?.fimDeCarreira);
-            if ((parseFloat(salarioPais.mediaDeCarreira) / 12) >= user.salaryExpect) {
-                //a expectativa salarial do pais em análise é superir a expectativa do usuário
-                //então este país é elegível
-                countries[i].eligible = true;
+            if (idiomas.some(idioma => user.languages.includes(idioma))) {
+                paises.push(pais.namePtBr);
+                return true;
+            }
+
+            return false;
+        });
+
+        //filtrar salario            
+        for (let i = 0; i < countries.length; i++) {
+            const salarioPais = await extrairMediaSalarial(countries[i].cca2, user.profession);
+
+            if (salarioPais?.mediaDeCarreira) {
+                countries[i].salaryByChosenProfession = parseInt(salarioPais?.mediaDeCarreira);
+                countries[i].initialSalary = parseInt(salarioPais?.inicioDeCarreira);
+                countries[i].lastSalary = parseInt(salarioPais?.fimDeCarreira);
+                if ((parseFloat(salarioPais.mediaDeCarreira) / 12) >= user.salaryExpect) {
+                    //a expectativa salarial do pais em análise é superir a expectativa do usuário
+                    //então este país é elegível
+                    countries[i].eligible = true;
+                }
             }
         }
-    }
-
-    //filtrar custo de vida            
-    const currentDisposableIncome = user.salary - user.costOfLiving;
-    for (let i = 0; i < countries.length; i++) {
-        if (!countries[i].eligible) continue; //ignora paises não elegíveis
-
-        //otimizar com extração de dados via mongoDB
-        const custoDeVidaPais = await extrairResumoCustoDeVida(countries[i].nameEnUs);
-        const countryDisposableIncome = (countries[i].salaryByChosenProfession / 12) - custoDeVidaPais;
-        countries[i].countryCostOfLiving = custoDeVidaPais;
-        countries[i].countryDisposableIncome = parseInt(countryDisposableIncome.toFixed(0));
-
-        if (currentDisposableIncome > countryDisposableIncome) {
-            //se o que sobra do país atual é maior que o país sendo comparado, 
-            // então ele não é mais elegível           
-            countries[i].eligible = false;
+        const salarioPaisUsuario = await extrairMediaSalarial(userCountryInfo.cca2, user.profession);
+        if (salarioPaisUsuario?.mediaDeCarreira) {
+            userCountryInfo.salaryByChosenProfession = parseInt(salarioPaisUsuario.mediaDeCarreira);
+            userCountryInfo.initialSalary = parseInt(salarioPaisUsuario.inicioDeCarreira);
+            userCountryInfo.lastSalary = parseInt(salarioPaisUsuario.fimDeCarreira);
         }
-    }
 
-    //eleger 3 dos países restantes
-    countries = countries.filter((pais: any) => pais.eligible);
-    countries = countries
-        .sort((a, b) => b.countryDisposableIncome - a.countryDisposableIncome) // decrescente
-        .slice(0, 3) // pega os 3 maiores        
-    for (let i = 0; i < countries.length; i++) {
-        countries[i].cca2 = countries[i].cca2.toLowerCase();
-        countries[i].cca2Upper = countries[i].cca2.toUpperCase();
-        countries[i].salaryByChosenProfession = countries[i].salaryByChosenProfession / 12;
-        countries[i].initialSalary = countries[i].initialSalary / 12;
-        countries[i].lastSalary = countries[i].lastSalary / 12;
-        countries[i].photos_url = await obterFotoPais(countries[i].nameEnUs);
-        countries[i].languages = await getLanguagesPtBr(countries[i].languages);
-        countries[i].indexQualityOfLife = await extrairIndicesQualidadeDeVida(countries[i].nameEnUs);
-        countries[i].climate = await extrairClimaPais(countries[i].lat, countries[i].long);
-    }
+        //filtrar custo de vida            
+        const currentDisposableIncome = user.salary - user.costOfLiving;
+        for (let i = 0; i < countries.length; i++) {
+            if (!countries[i].eligible) continue; //ignora paises não elegíveis
 
-    if (countries.length > 0) {
-        res.render('pages/recomendacoes', {
-            username: req.params.username,
-            countries: countries,
-            countriesJson: JSON.stringify(countries),
-            user: {
-                name: (req.user as any).name,
-                profession: user.professionPtBr || user.profession,
-                professionEnUs: user.profession,
-                salary: user.salary,
-                costOfLiving: user.costOfLiving,
-                favoriteContinent: user.favoriteContinent.join(', '),
-                languages: user.languages.join(', '),
-                originCountry: user.originCountry,
-                salaryExpect: user.salaryExpect
+            //otimizar com extração de dados via mongoDB
+            const custoDeVidaPais = await extrairResumoCustoDeVida(countries[i].nameEnUs);
+            const countryDisposableIncome = (countries[i].salaryByChosenProfession / 12) - custoDeVidaPais;
+            countries[i].countryCostOfLiving = custoDeVidaPais;
+            countries[i].countryDisposableIncome = parseInt(countryDisposableIncome.toFixed(0));
+
+            if (currentDisposableIncome > countryDisposableIncome) {
+                //se o que sobra do país atual é maior que o país sendo comparado, 
+                // então ele não é mais elegível           
+                countries[i].eligible = false;
             }
-        });
-    } else {
-        res.render('pages/noCountriesFounded');
-    }
-};
+        }
+        userCountryInfo.countryCostOfLiving = user.costOfLiving;
+        userCountryInfo.countryDisposableIncome = user.salary - user.costOfLiving;
+
+        //eleger 3 dos países restantes
+        countries = countries.filter((pais: any) => pais.eligible);
+        countries = countries
+            .sort((a, b) => b.countryDisposableIncome - a.countryDisposableIncome) // decrescente
+            .slice(0, 3) // pega os 3 maiores        
+        for (let i = 0; i < countries.length; i++) {
+            //dados paises
+            countries[i].cca2 = countries[i].cca2.toLowerCase();
+            countries[i].cca2Upper = countries[i].cca2.toUpperCase();
+            countries[i].salaryByChosenProfession = countries[i].salaryByChosenProfession / 12;
+            countries[i].initialSalary = countries[i].initialSalary / 12;
+            countries[i].lastSalary = countries[i].lastSalary / 12;
+            countries[i].photos_url = await obterFotoPais(countries[i].nameEnUs);
+            countries[i].languages = await getLanguagesPtBr(countries[i].languages);
+            countries[i].indexQualityOfLife = await extrairIndicesQualidadeDeVida(countries[i].nameEnUs);
+            countries[i].climate = await extrairClimaPais(countries[i].lat, countries[i].long);
+        }
+        userCountryInfo.namePtBr = 'Seu país (' + userCountryInfo.namePtBr + ')';
+        userCountryInfo.cca2 = userCountryInfo.cca2.toLowerCase();
+        userCountryInfo.cca2Upper = userCountryInfo.cca2.toUpperCase();
+        userCountryInfo.salaryByChosenProfession = userCountryInfo.salaryByChosenProfession / 12;
+        userCountryInfo.initialSalary = userCountryInfo.initialSalary / 12;
+        userCountryInfo.lastSalary = userCountryInfo.lastSalary / 12;
+        userCountryInfo.photos_url = await obterFotoPais(userCountryInfo.nameEnUs);
+        userCountryInfo.languages = await getLanguagesPtBr(userCountryInfo.languages);
+        userCountryInfo.indexQualityOfLife = await extrairIndicesQualidadeDeVida(userCountryInfo.nameEnUs);
+        userCountryInfo.climate = await extrairClimaPais(userCountryInfo.lat, userCountryInfo.long);
+
+        countries.push(userCountryInfo);
+
+        if (countries.length > 0) {
+            res.render('pages/recomendacoes', {
+                username: req.params.username,
+                countries: countries,
+                countriesJson: JSON.stringify(countries),
+                user: {
+                    name: (req.user as any).name,
+                    profession: user.professionPtBr || user.profession,
+                    professionEnUs: user.profession,
+                    salary: user.salary,
+                    costOfLiving: user.costOfLiving,
+                    favoriteContinent: user.favoriteContinent.join(', '),
+                    languages: user.languages.join(', '),
+                    originCountry: user.originCountry,
+                    salaryExpect: user.salaryExpect
+                }
+            });
+        } else {
+            res.render('pages/noCountriesFounded');
+        }
+    };
+}

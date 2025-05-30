@@ -28,5 +28,6 @@ export type Country = {
         trafficCommute: number,
         pollutionIndex: number
     },
-    climate?: number[]
+    climate?: number[],
+    myCountry: boolean
 }

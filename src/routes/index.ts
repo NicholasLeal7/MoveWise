@@ -23,7 +23,4 @@ router.get('/perfil', privateRoute, userController.getPerfil);
 router.post('/:username', privateRoute, userController.updateInfo);
 router.get('/logout', authController.logout);
 
-//teste
-router.get('/teste', consultaController.teste);
-
 export default router;
