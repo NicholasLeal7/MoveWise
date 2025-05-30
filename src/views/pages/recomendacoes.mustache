@@ -604,7 +604,8 @@
       const chartColors = {
         primary: '#2E93fA',
         secondary: '#FF5252',
-        success: '#66DA26'
+        success: '#66DA26',
+        warning: '#FFA500'
       };
 
       // Gráfico de Barras - Comparação Financeira
@@ -688,7 +689,7 @@
           horizontalAlign: 'center',
           offsetY: 10,
           markers: {
-            fillColors: [chartColors.primary, chartColors.secondary, chartColors.success]
+            fillColors: [chartColors.primary, chartColors.secondary, chartColors.success, chartColors.warning]
           }
         },
         responsive: [{
@@ -739,7 +740,7 @@
           height: 350
         },
         labels: labels,
-        colors: [chartColors.primary, chartColors.secondary, chartColors.success],
+        colors: [chartColors.primary, chartColors.secondary, chartColors.success, chartColors.warning],
         plotOptions: {
           pie: {
             donut: {
@@ -848,7 +849,7 @@
             }
           }
         },
-        colors: [chartColors.primary, chartColors.secondary, chartColors.success],
+        colors: [chartColors.primary, chartColors.secondary, chartColors.success, chartColors.warning],
         tooltip: {
           y: {
             formatter: function(val) {
@@ -939,7 +940,7 @@
           horizontalAlign: 'center',
           offsetY: 10,
           markers: {
-            fillColors: [chartColors.primary, chartColors.secondary, chartColors.success]
+            fillColors: [chartColors.primary, chartColors.secondary, chartColors.success, chartColors.warning]
           }
         },
         responsive: [{
@@ -1002,7 +1003,7 @@
           curve: 'smooth',
           width: 3
         },
-        colors: [chartColors.primary, chartColors.secondary, chartColors.success],
+        colors: [chartColors.primary, chartColors.secondary, chartColors.success, chartColors.warning],
         xaxis: {
           categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
           title: {

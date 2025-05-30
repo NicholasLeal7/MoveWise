@@ -266,8 +266,10 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
                 countries[i].eligible = false;
             }
         }
-        userCountryInfo.countryCostOfLiving = user.costOfLiving;
-        userCountryInfo.countryDisposableIncome = user.salary - user.costOfLiving;
+        const custoDeVidaPaisUsuario = await extrairResumoCustoDeVida(userCountryInfo.nameEnUs);
+        const countryDisposableIncomeUser = (userCountryInfo.salaryByChosenProfession / 12) - custoDeVidaPaisUsuario;
+        userCountryInfo.countryCostOfLiving = custoDeVidaPaisUsuario;
+        userCountryInfo.countryDisposableIncome = parseInt(countryDisposableIncomeUser.toFixed(0));
 
         //eleger 3 dos países restantes
         countries = countries.filter((pais: any) => pais.eligible);
@@ -289,13 +291,13 @@ export const getConsulta: RequestHandler = async (req, res, next) => {
         userCountryInfo.namePtBr = 'Seu país (' + userCountryInfo.namePtBr + ')';
         userCountryInfo.cca2 = userCountryInfo.cca2.toLowerCase();
         userCountryInfo.cca2Upper = userCountryInfo.cca2.toUpperCase();
-        userCountryInfo.salaryByChosenProfession = userCountryInfo.salaryByChosenProfession / 12;
-        userCountryInfo.initialSalary = userCountryInfo.initialSalary / 12;
-        userCountryInfo.lastSalary = userCountryInfo.lastSalary / 12;
         userCountryInfo.photos_url = await obterFotoPais(userCountryInfo.nameEnUs);
         userCountryInfo.languages = await getLanguagesPtBr(userCountryInfo.languages);
         userCountryInfo.indexQualityOfLife = await extrairIndicesQualidadeDeVida(userCountryInfo.nameEnUs);
         userCountryInfo.climate = await extrairClimaPais(userCountryInfo.lat, userCountryInfo.long);
+        userCountryInfo.salaryByChosenProfession = userCountryInfo.salaryByChosenProfession / 12;
+        userCountryInfo.initialSalary = userCountryInfo.initialSalary / 12;
+        userCountryInfo.lastSalary = userCountryInfo.lastSalary / 12;
 
         countries.push(userCountryInfo);
 
